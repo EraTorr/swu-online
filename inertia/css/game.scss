@@ -1,0 +1,175 @@
+.flex {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+
+    &.ground, &.space {
+        gap: 1px;
+        flex-wrap: wrap;
+    }
+}
+
+.game {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .top, .bottom {
+        background-color: black;
+        height: 415px;
+        display: grid;
+
+        // > * {
+        //     overflow: hidden;
+        // }
+    
+        .hand {
+            height: 105px;
+        }
+    
+        .board {
+            display: grid;
+            grid-template-rows: 1fr 1fr 1fr;
+            height: 310px;
+    
+            .area-1 {
+                background-color: antiquewhite;
+                height: 105px;
+            }
+    
+            .area-2 {
+                grid-row: 1 / 3;
+                height: 205px;
+            }
+        }
+    }
+    
+    .top {
+        grid-template-rows: 1fr 4fr;
+        background-color: cornflowerblue;
+    
+        .hand {
+            grid-row: 1 / 2;
+        }
+    
+        .board {
+            grid-row: 2 / 3;
+    
+            .area-1 {
+                grid-row: 1 / 2;
+            }
+    
+            .area-2 {
+                grid-row: 2 / 4;
+
+                .ground:before {
+                    background-image: url('https://ik.imagekit.io/nrqvxs6itqd/SWU/ground2_.png');
+
+                    // transform: rotate(180deg);
+                }
+
+                .space:before {
+                    background-image: url('https://ik.imagekit.io/nrqvxs6itqd/SWU/space2_.png');
+
+                    // transform: rotate(180deg);
+                }
+            }
+        }
+    }
+    
+    .bottom {
+        grid-template-rows: 4fr 1fr;
+        background-color: lightsalmon;
+    
+        .hand {
+            grid-row: 2 / 3;
+        }
+    
+        .board {
+            grid-row: 1 / 2;
+        }
+    }
+    
+    .area-1 {
+        display: grid;
+        grid-template-columns: 5fr 85px 85px;
+    
+        .ressource {
+            justify-content: flex-start;
+            margin: 0 5px;
+        }
+        .deck {
+            background-color: aquamarine;
+
+            img {
+                max-width: 100px;
+                max-height: 100px;
+                border-radius: 3px;
+                display: block;
+            }
+        }
+        .discard {
+            background-color: teal;
+        }
+    }
+    
+    .area-2 {
+        display: grid;
+        grid-template-columns: 4fr 110px 4fr;
+        gap: 5px;
+    
+        .space {
+            background-color: white;
+            position: relative;
+            &:before {
+                filter: opacity(0.7);
+                content: '';
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-image: url('https://ik.imagekit.io/nrqvxs6itqd/SWU/space_.png?updatedAt=1716732189376');
+                background-size: contain;
+                position: absolute;
+            }
+        }
+        .middle {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+    
+            .leader {
+                background-color: rgb(255, 254, 201);
+            }
+    
+            .base {
+                background-color: aliceblue;
+            }
+        }
+        .ground {
+            background-color: white;
+            position: relative;
+
+            &:before {
+                filter: opacity(0.7);
+                content: '';
+                display: block;
+                width: 100%;
+                height: 100%;
+                background-image: url('https://ik.imagekit.io/nrqvxs6itqd/SWU/ground_.png?updatedAt=1716732189371');
+                background-size: contain;
+                position: absolute;
+
+            }
+        }
+    }
+    
+    .text-gradient {
+        background-image: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 400%;
+        background-position: 0%;
+    }
+}

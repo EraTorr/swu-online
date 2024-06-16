@@ -1,0 +1,11 @@
+body {
+    overflow:  hidden;
+}
+main {
+    margin: auto;
+    width: 1000px;
+    height: 840px;
+    color: white;
+    font-size: 20px;
+    line-height: 1.6;
+}

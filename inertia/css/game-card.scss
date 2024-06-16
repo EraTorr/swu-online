@@ -1,0 +1,54 @@
+.swu-card.container {
+  position: relative;
+  cursor: pointer;
+  z-index: 10;
+
+  &:hover {
+    z-index: 20;
+  }
+
+  &.selected {
+    position: fixed;
+    z-index: 20;
+
+    > img.in-game {
+      box-shadow: 0px 0px 5px 5px red;
+    }
+  }
+
+  &.exhausted {
+    filter: grayscale(1) contrast(0.4);
+    transform: rotateZ(5deg);
+  }
+
+  > img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 3px;
+    display: block;
+  }
+}
+
+.swu-card.in-display {
+    z-index: 15;
+    border-radius: 15px;
+    display: none;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    max-height: 500px;
+    max-width: 500px;
+
+    &:hover {
+      display: block;
+    }
+}
+
+.swu-card.container:hover + .in-display {
+  display: block;
+}
+
+.top .in-display {
+  top: inherit;
+  bottom: 10px;
+}
