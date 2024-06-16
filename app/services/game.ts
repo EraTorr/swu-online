@@ -1,9 +1,7 @@
-import { hiddenCard, initCard, type Card } from '../helpers/card'
-import { draw } from './deck'
-import { sendWS } from './websocket'
-import { sorCard } from '../data/sor'
+import { sendWS } from './websocket.js'
+import { sorCard } from '../data/sor.js'
 import { v4 as uuidv4 } from 'uuid'
-import { MoveCardType } from '#types/card.type.js'
+import { Card, MoveCardType } from '#types/card.type.js'
 
 export type GameType = {
   gameId: string
@@ -483,4 +481,55 @@ export const removeUpgrade = () => {}
 
 export const shuffleCard = (gameId: string, shuffle: any) => {
   const game = getGame(gameId) as GameType
+}
+
+export const hiddenCard = (
+  cardUuid: string,
+  ownerUuid: string,
+  type: string,
+  exhaust = false
+): Card => {
+  return initCard({
+    id: cardUuid,
+    cost: 0,
+    set: 'no',
+    number: '000',
+    name: 'card_back',
+    type,
+    frontText: 'card_back',
+    rarity: 'no',
+    unique: false,
+    owner: ownerUuid,
+    side: ownerUuid,
+    exhaust,
+  })
+}
+
+export const initCard = (data: any): Card => {
+  return {
+    shield: 0,
+    experience: 0,
+    modifiedCost: data.cost ?? 0,
+    modifiedPower: data.power ?? 0,
+    modifiedHp: data.hp ?? 0,
+    exhaust: false,
+    ...data,
+  }
+}
+
+export const draw = (amount: number, deck: Array<Card>) => {
+  if (deck.length < amount) {
+    // TODO implement life reducing system + mange
+    return { hand: deck.slice(0, amount), deck: [], minusLife: deck.length - amount }
+  }
+  return { hand: deck.slice(0, amount), deck: deck.slice(amount), minusLife: 0 }
+}
+
+export const shuffleDeck = (deck: Array<Card>) => {
+  const deckCopy = deck.slice(0)
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[deckCopy[i], deckCopy[j]] = [deckCopy[j], deckCopy[i]]
+  }
+  return deckCopy
 }

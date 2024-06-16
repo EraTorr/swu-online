@@ -1,12 +1,12 @@
-import MatchMakingController from '../../controllers/matchmaking'
 import { v4 as uuidv4 } from 'uuid'
 import { redis } from '#services/valkey'
 import { HttpContext } from '@adonisjs/core/http'
+import MatchmakingService from '#services/matchmaking'
 
 export default class MatchmakingController {
   async index(ctx: HttpContext) {
     if (ctx.request.header('Content-Type') === 'application/json') {
-      const { uuid } = ctx.request.body()
+      let { uuid } = ctx.request.body()
 
       try {
         const opponentFound = await getOpponent(uuid)
@@ -14,7 +14,7 @@ export default class MatchmakingController {
         uuid = uuid instanceof String ? uuid : uuidv4()
         if (opponentFound) {
           console.log('opponentFound', opponentFound)
-          const game = MatchMakingController.getInstance().createGame(uuid, opponentFound)
+          const game = MatchmakingService.getInstance().createGame(uuid, opponentFound)
           return ctx.response.status(200).send(JSON.stringify({ uuid, game }))
         }
 
@@ -27,6 +27,23 @@ export default class MatchmakingController {
       return ctx.response.status(200).send(JSON.stringify({ uuid }))
     }
     return ctx.response.status(400)
+  }
+
+  async delete({ request }: HttpContext) {
+    const uuid = request
+      .url()
+      .split('?')
+      .pop()
+      ?.split('&')
+      .filter((param) => param.includes('uuid='))[0]
+      ?.split('=')
+      .pop()
+
+    if (uuid === undefined) {
+      return new Response(null, { status: 404 })
+    }
+    await redis.zrem('matchmaking', uuid)
+    return new Response(null, { status: 204 })
   }
 }
 
@@ -82,21 +99,3 @@ const getOpponent = async (uuidP1: string) => {
   }
   return null
 }
-
-/*
-export const DELETE: APIRoute = async ({ request }) => {
-  const uuid = request.url
-    .split('?')
-    .pop()
-    ?.split('&')
-    .filter((param) => param.includes('uuid='))[0]
-    ?.split('=')
-    .pop()
-
-  if (uuid === undefined) {
-    return new Response(null, { status: 404 })
-  }
-  await redis.zrem('matchmaking', uuid)
-  return new Response(null, { status: 204 })
-}
-*/

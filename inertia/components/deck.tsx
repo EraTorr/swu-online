@@ -1,6 +1,6 @@
 import type { Component } from 'solid-js'
 // import { stopEvent } from '../helpers/app.helper'
-import '../style/deck.scss'
+import '../css/deck.scss'
 
 interface DeckProps {
   left: number

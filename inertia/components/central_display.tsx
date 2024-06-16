@@ -1,5 +1,5 @@
 import type { Component, JSXElement } from 'solid-js'
-import '../style/central-display.scss'
+import '../css/central-display.scss'
 
 interface CentralDisplayProps {
   children: JSXElement

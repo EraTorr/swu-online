@@ -7,7 +7,7 @@ export default function Game() {
 
       <script>
         if (!localStorage.getItem('deck') || !sessionStorage.getItem('game'))
-        window.location.replace('pre-game')
+        window.location.replace('pregame')
       </script>
     </main>
   )

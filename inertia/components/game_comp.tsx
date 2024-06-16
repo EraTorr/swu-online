@@ -11,6 +11,7 @@ import { OpponentHiddenCard } from './opponent_hidden_card.js'
 import { DiscardPile } from './discard_pile.jsx'
 import type { MoveCardType } from '#types/card.type.ts'
 import { CentralDisplay } from './central_display.jsx'
+import axios from 'axios'
 
 export const GameComp: Component = (props) => {
   let element!: HTMLDivElement
@@ -94,16 +95,14 @@ export const GameComp: Component = (props) => {
     gameId = game.gameId
     opponentUuid = game.p1 === myuuid ? game.p2 : game.p1
 
-    const response = await fetch('/api/game-connect', {
-      method: 'POST',
-      body: JSON.stringify({ gameId }),
+    const response = await axios.post('/api/matchmaking', JSON.stringify({ gameId }), {
       headers: {
         'Content-Type': 'application/json',
       },
     })
 
     if (response.status === 400) {
-      window.location.replace('pre-game')
+      window.location.replace('pregame')
     }
 
     // Create WebSocket connection.
@@ -156,7 +155,7 @@ export const GameComp: Component = (props) => {
 
     newListener(socket, 'error', (event) => {
       console.log(event)
-      window.location.replace('pre-game')
+      window.location.replace('pregame')
     })
     // window.onbeforeunload = () => {
     // 	fetch("/api/close-ws", {method: "GET"})

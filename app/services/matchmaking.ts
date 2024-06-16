@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid'
-import { setGame } from './game'
+import { setGame } from './game.js'
 import { ReadableStreamDefaultController } from 'node:stream/web'
 
 export default class MatchmakingService {
@@ -51,6 +51,7 @@ export default class MatchmakingService {
     const encoder = new TextEncoder()
     const message = encoder.encode(`data: ${JSON.stringify(gameState)}\n\n`)
 
+    console.log(this.controllers)
     this.controllers.forEach((controller: ReadableStreamDefaultController) =>
       controller.enqueue(message)
     )
