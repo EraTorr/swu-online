@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { onMount } from 'solid-js'
+import { transmit } from '~/js/transmit_client'
 
 export default function Matchmaking() {
   onMount(async () => {
@@ -25,13 +26,14 @@ export default function Matchmaking() {
       }
     }
 
-    const eventSource = new EventSource('/api/matchmaking-sub')
-    eventSource.onmessage = async (event) => {
+    const subscription = transmit.subscription('chats/1/messages')
+    await subscription.create()
+
+    subscription.onMessage((event: any) => {
       console.log('found-match-' + myuuid)
       sessionStorage.setItem('game', event.data)
       window.location.replace('/game')
-    }
-
+    })
     window.addEventListener('unload', function (e) {
       if (!localStorage.getItem('deck')) return
 

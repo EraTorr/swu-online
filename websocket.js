@@ -1,4 +1,7 @@
 import { WebSocketServer } from 'ws'
+import axios from 'axios'
+
+axios.defaults.baseURL = 'http://localhost:3333'
 
 const server = new WebSocketServer({ port: 8080 })
 const connections = new Map()
@@ -13,25 +16,33 @@ server.on('connection', async function connection(ws) {
       const uuid = message.data.uuid
       connections.set(uuid, ws)
       try {
-        await axios
-          .post('http://localhost:3333/api/action')
-          .body(
-            JSON.stringify({
-              data: { gameId: message.data.gameId, uuid },
-              action: 'acknowledge',
-            })
-          )
-          .header('Content-Type', 'application/json')
+        const response = await axios.post(
+          '/api/action',
+          JSON.stringify({
+            data: { gameId: message.data.gameId, uuid },
+            action: 'acknowledge',
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        )
         console.log('fetch', message.action)
       } catch (e) {
         console.log(e)
       }
     } else if (message.action && message.data) {
       try {
-        await axios
-          .post('http://localhost:3333/api/action')
-          .body(JSON.stringify(message))
-          .header('Content-Type', 'application/json')
+        const response = await axios.post('/api/action', JSON.stringify(message), {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        // await axios
+        //   .post('http://localhost:3333/api/action')
+        //   .body(JSON.stringify(message))
+        //   .header('Content-Type', 'application/json')
         console.log('fetch', message.action)
       } catch (e) {
         console.log(e)
