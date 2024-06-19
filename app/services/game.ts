@@ -1,4 +1,3 @@
-import { sendWS } from './websocket.js'
 import { sorCard } from '../data/sor.js'
 import { v4 as uuidv4 } from 'uuid'
 import { Card, MoveCardType } from '#types/card.type.js'
@@ -7,6 +6,10 @@ export type GameType = {
   gameId: string
   p1: string
   p2: string
+  connected: {
+    p1: boolean
+    p2: boolean
+  }
   decks: {
     p1: {
       fullDeck: Array<Card>
@@ -105,6 +108,7 @@ export const setGame = (game: GameType): void => {
 
 export const startPhase = (gameId: string) => {
   const game = getGame(gameId) as GameType
+
   const drawResultP1 = draw(6, game.decks.p1?.playDeck ?? [])
   const drawResultP2 = draw(6, game.decks.p2?.playDeck ?? [])
 
@@ -252,7 +256,7 @@ export const reconnect = (gameId: string, playerUuid: string) => {
   }
 }
 
-export const prepareDeckCard = (id: string, owner: string, index = 0) => {
+export const prepareDeckCard = (id: string, owner: string) => {
   let tempCard
   const [set, number] = id.split('_')
   if (set === 'SOR') {

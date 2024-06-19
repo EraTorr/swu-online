@@ -1,9 +1,9 @@
-import { GameComp } from '../components/game_comp'
+import { GameComponent } from '../components/game_component'
 
 export default function Game() {
   return (
     <main>
-      <GameComp></GameComp>
+      <GameComponent></GameComponent>
 
       <script>
         if (!localStorage.getItem('deck') || !sessionStorage.getItem('game'))

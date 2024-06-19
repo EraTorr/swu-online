@@ -28,45 +28,7 @@ export default class MatchmakingController {
     }
     return ctx.response.status(400)
   }
-
-  async delete({ request }: HttpContext) {
-    const uuid = request
-      .url()
-      .split('?')
-      .pop()
-      ?.split('&')
-      .filter((param) => param.includes('uuid='))[0]
-      ?.split('=')
-      .pop()
-
-    if (uuid === undefined) {
-      return new Response(null, { status: 404 })
-    }
-    await redis.zrem('matchmaking', uuid)
-    return new Response(null, { status: 204 })
-  }
 }
-
-// export const POST: APIRoute = async ({ request }) => {
-//   let { uuid } = await request.json()
-//   try {
-//     const opponentFound = await getOpponent(uuid)
-
-//     uuid = uuid instanceof String ? uuid : uuidv4()
-//     if (opponentFound) {
-//       console.log('opponentFound', opponentFound)
-//       const game = MatchMakingController.getInstance().createGame(uuid, opponentFound)
-//       return new Response(JSON.stringify({ uuid, game }), { status: 200 })
-//     }
-
-//     const randNumber = Math.floor(Math.random() * 5) + 1
-//     await redis.zadd('matchmaking', { nx: true }, { score: randNumber, member: uuid })
-//   } catch (error) {
-//     console.error(error)
-//   }
-
-//   return new Response(JSON.stringify({ uuid }), { status: 200 })
-// }
 
 const getOpponent = async (uuidP1: string) => {
   let array = [1, 2, 3, 4, 5]

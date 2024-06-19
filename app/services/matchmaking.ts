@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 import { setGame } from './game.js'
 import { ReadableStreamDefaultController } from 'node:stream/web'
+import transmit from '@adonisjs/transmit/services/main'
 
 export default class MatchmakingService {
   private static instance: MatchmakingService
@@ -15,19 +16,6 @@ export default class MatchmakingService {
     return MatchmakingService.instance
   }
 
-  // private gameState: {} = {
-  //     p1: '',
-  //     p2: '',
-  //     gameId: '',
-  //     decks: {},
-  //     hands: {},
-  //     resources: {},
-  //     grounds: {},
-  //     spaces: {},
-  //     leaders: {},
-  //     bases: {},
-  // };
-
   createGame = (uuidP1: string, uuidP2: string) => {
     const idStartingPlayer = Math.floor(Math.random() * 2)
     const player1 = [uuidP1, uuidP2][idStartingPlayer]
@@ -35,6 +23,7 @@ export default class MatchmakingService {
     const gameState = {
       p1: player1,
       p2: player2,
+      connected: { p1: false, p2: false },
       gameId: uuidv4(),
       decks: { p1: { fullDeck: [], playDeck: [] }, p2: { fullDeck: [], playDeck: [] } },
       hands: { p1: { cards: [] }, p2: { cards: [] } },
@@ -48,13 +37,10 @@ export default class MatchmakingService {
 
     setGame(gameState)
 
-    const encoder = new TextEncoder()
-    const message = encoder.encode(`data: ${JSON.stringify(gameState)}\n\n`)
+    console.log('gameState', JSON.stringify(gameState))
 
-    console.log(this.controllers)
-    this.controllers.forEach((controller: ReadableStreamDefaultController) =>
-      controller.enqueue(message)
-    )
+    transmit.broadcast('matchmaking/' + uuidP2, JSON.stringify(gameState))
+
     return gameState
   }
 }

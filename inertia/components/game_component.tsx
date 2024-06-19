@@ -8,12 +8,13 @@ import { Actions, type ActionsData } from './actions.js'
 import { hiddenCard, type Card } from '../helpers/card.js'
 import { Deck } from './deck.js'
 import { OpponentHiddenCard } from './opponent_hidden_card.js'
-import { DiscardPile } from './discard_pile.jsx'
+import { DiscardPile } from './discard_pile.js'
 import type { MoveCardType } from '#types/card.type.ts'
-import { CentralDisplay } from './central_display.jsx'
+import { CentralDisplay } from './central_display.js'
 import axios from 'axios'
+import { transmit } from '~/js/transmit_client.js'
 
-export const GameComp: Component = (props) => {
+export const GameComponent: Component = (props) => {
   let element!: HTMLDivElement
   let myuuid: string
   let gameId: string
@@ -24,7 +25,6 @@ export const GameComp: Component = (props) => {
   const [leader, setLeader] = createSignal<Card>()
   const [opponentLeader, setOpponentLeader] = createSignal<Card>()
 
-  const [socket, setSocket] = createSignal<WebSocket | null>(null)
   const [actionsData, setActionsData] = createSignal<ActionsData | null>(null)
   // const [actionsArea, setActionsArea] = createSignal<string>('');
   // const [actionsCard, setActionsCard] = createSignal<string>('');
@@ -95,27 +95,32 @@ export const GameComp: Component = (props) => {
     gameId = game.gameId
     opponentUuid = game.p1 === myuuid ? game.p2 : game.p1
 
-    const response = await axios.post('/api/matchmaking', JSON.stringify({ gameId }), {
+    const gameExistResponse = await axios.post('/api/game-connect', JSON.stringify({ gameId }), {
       headers: {
         'Content-Type': 'application/json',
       },
     })
 
-    if (response.status === 400) {
+    if (gameExistResponse.status === 400) {
       window.location.replace('pregame')
     }
 
-    // Create WebSocket connection.
-    const socket = new WebSocket('ws://' + window.location.hostname + ':8080/')
-    setSocket(socket)
+    const subscription = transmit.subscription('game/' + gameId + '/' + myuuid)
+    subscription.create()
 
-    // Connection opened
-    newListener(socket, 'open', () => {
-      socket.send(JSON.stringify({ action: 'acknowledge', data: { uuid: myuuid, gameId } }))
-    })
+    axios.post(
+      '/api/action',
+      JSON.stringify({ action: 'acknowledge', data: { uuid: myuuid, gameId } }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
 
-    // Listen for messages
-    newListener(socket, 'message', async (event) => {
+    subscription.onMessage(async (event: any) => {
+      console.log('game-' + gameId, event)
+
       const data = await JSON.parse(event.data)
 
       console.log('message', data)
@@ -126,21 +131,33 @@ export const GameComp: Component = (props) => {
           if (data.action === 'sendDeck') {
             // send deck
             const deckParsed = JSON.parse(localStorage.getItem('deck') as string)
-            socket.send(
+            axios.post(
+              '/api/action',
               JSON.stringify({
                 action: 'sendDeck',
                 data: { gameId: gameId, uuid: myuuid, deck: deckParsed },
-              })
+              }),
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
             )
           }
           if (data.action === 'reconnect') {
             // send deck
             const deckParsed = JSON.parse(localStorage.getItem('deck') as string)
-            socket.send(
+            axios.post(
+              '/api/action',
               JSON.stringify({
                 action: 'reconnect',
                 data: { gameId: gameId, uuid: myuuid, deck: deckParsed },
-              })
+              }),
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
             )
           }
         }
@@ -150,16 +167,31 @@ export const GameComp: Component = (props) => {
     newListener(document, 'sendMessage', (event: CustomEvent) => {
       const e = event as CustomEvent
       console.log('sendMessage', e.detail)
-      socket.send(JSON.stringify(e.detail))
+      axios.post(
+        '/api/action',
+        JSON.stringify({
+          action: 'action',
+          data: JSON.stringify(e.detail),
+        }),
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      )
     })
 
-    newListener(socket, 'error', (event) => {
-      console.log(event)
-      window.location.replace('pregame')
-    })
+    // newListener(socket, 'error', (event) => {
+    //   console.log(event)
+    //   window.location.replace('pregame')
+    // })
     // window.onbeforeunload = () => {
     // 	fetch("/api/close-ws", {method: "GET"})
     // }
+
+    window.addEventListener('unload', async function (e) {
+      await subscription.delete()
+    })
   })
 
   const openActions = (e: ActionsData) => {
@@ -288,10 +320,6 @@ export const GameComp: Component = (props) => {
     return { x: 20 + index * 40, y: 20 + index * 40 }
   }
 
-  const sendWS = (action: string, data: any) => {
-    socket()?.send(JSON.stringify({ action, data: { gameId: gameId, ...data } }))
-  }
-
   const cardPushNewPosition = (card: Card, side: string, area: string, fromArea: string): void => {
     const move: MoveCardType = {
       card,
@@ -300,7 +328,7 @@ export const GameComp: Component = (props) => {
       fromArea,
       playerUuid: myuuid,
     }
-    sendWS('moveCard', { move })
+    console.log('sendWS', 'moveCard', { move })
   }
 
   const sendXAction = (action: string, count: number, card: Card): void => {
@@ -311,7 +339,7 @@ export const GameComp: Component = (props) => {
       sideUuid: myuuid,
     }
     console.log('se', data)
-    sendWS(action, { action: data })
+    console.log('sendWS', action, { action: data })
     return
   }
 

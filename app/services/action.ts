@@ -1,4 +1,3 @@
-import { WebSocket, WebSocketServer } from 'ws'
 import {
   damageCard,
   discardCard,
@@ -14,66 +13,49 @@ import {
   type GameType,
   shuffleDeck,
 } from './game.js'
+
 import { Card } from '#types/card.type.js'
+import transmit from '@adonisjs/transmit/services/main'
 
-export default class WebsocketController {
-  private static server: WebSocketServer
-  static connections: Map<string, any> = new Map()
-
-  static getInstance(): WebSocketServer {
-    if (!WebsocketController.server) {
-      try {
-        WebsocketController.server = new WebSocketServer({ port: 8080 })
-      } catch (e) {
-        console.log(e)
-      }
-
-      WebsocketController.server.on('connection', function connection(ws) {
-        ws.on('error', console.error)
-
-        ws.on('message', async function message(data) {
-          const message = await JSON.parse(data.toString())
-          if (message.action && message.data) {
-            handleAction(message.action, message.data, ws)
-          }
-        })
-
-        ws.send(JSON.stringify({ response: 'Connected' }))
-      })
-    }
-    return WebsocketController.server
-  }
-}
-
-export const handleAction = async (action: string, data: any, ws: WebSocket | null = null) => {
+export const handleAction = async (action: string, data: any) => {
   let game: GameType | null = null
 
   switch (action) {
     case 'acknowledge':
-      WebsocketController.connections.set(data.uuid, ws)
       game = getGame(data.gameId)
       if (game === null) break
 
-      const allConnected =
-        [...WebsocketController.connections.keys()].filter((uuid: any) =>
-          [game?.p1, game?.p2].includes(uuid)
-        ).length === 2
+      if (data.uuid === game.p1) {
+        game.connected = {
+          ...game.connected,
+          p1: true,
+        }
+      } else {
+        game.connected = {
+          ...game.connected,
+          p2: true,
+        }
+      }
+
+      setGame(game)
+      console.log(action, data, game.connected, game.p1, game.p2)
+
+      const allConnected = game.connected.p1 && game.connected.p2
 
       if (game.decks.p1.fullDeck.length && game.decks.p2.fullDeck.length) {
-        console.log('reconnect', data.uuid)
+        const responseData = { action: 'reconnect' }
         if (game.p1 === data.uuid) {
-          const dataP1 = { action: 'reconnect' }
-          sendWS(game, dataP1, null)
+          broadcastResponse(game, responseData)
         } else {
-          const dataP2 = { action: 'reconnect' }
-          sendWS(game, null, dataP2)
+          broadcastResponse(game, null, responseData)
         }
         break
       }
+
       if (allConnected) {
-        const dataP1 = { action: 'sendDeck' }
-        const dataP2 = { action: 'sendDeck' }
-        sendWS(game, dataP1, dataP2)
+        const responseData = { action: 'sendDeck' }
+
+        broadcastResponse(game, responseData, responseData)
       }
       break
     case 'sendDeck':
@@ -86,7 +68,7 @@ export const handleAction = async (action: string, data: any, ws: WebSocket | nu
 
       deck.deck.forEach((card: any) => {
         for (let i = 0; i < card.count; i++) {
-          deckCard.push(prepareDeckCard(card.id, data.uuid, i))
+          deckCard.push(prepareDeckCard(card.id, data.uuid))
         }
       })
 
@@ -172,15 +154,17 @@ export const handleAction = async (action: string, data: any, ws: WebSocket | nu
   }
 }
 
-export const sendWS = (game: GameType, dataP1: any, dataP2: any) => {
-  let responseP1 = null
-  let responseP2 = null
-  if (dataP1) responseP1 = JSON.stringify({ uuids: [game.p1], data: dataP1 })
-  if (dataP2) responseP2 = JSON.stringify({ uuids: [game.p2], data: dataP2 })
-  const socket = new WebSocket('ws://localhost:8080/')
-  socket.addEventListener('open', () => {
-    if (responseP1) socket.send(responseP1)
-    if (responseP2) socket.send(responseP2)
-    socket.close()
-  })
+export const broadcastResponse = (game: GameType, dataP1: any = null, dataP2: any = null) => {
+  if (dataP1) {
+    transmit.broadcast(
+      'game/' + game.gameId + '/' + game.p1,
+      JSON.stringify({ uuids: [game.p1], data: dataP1 })
+    )
+  }
+  if (dataP2) {
+    transmit.broadcast(
+      'game/' + game.gameId + '/' + game.p2,
+      JSON.stringify({ uuids: [game.p2], data: dataP2 })
+    )
+  }
 }

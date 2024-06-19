@@ -13,12 +13,12 @@ export default function Matchmaking() {
       },
     })
 
-    console.log(response)
     if (response.status === 200) {
       const data = response.data
 
       localStorage.setItem('myuuid', data.uuid)
 
+      console.log(data)
       if (data.game) {
         sessionStorage.setItem('game', JSON.stringify(data.game))
         window.location.replace('/game')
@@ -26,27 +26,14 @@ export default function Matchmaking() {
       }
     }
 
-    const subscription = transmit.subscription('chats/1/messages')
+    const subscription = transmit.subscription('matchmaking/' + response.data.uuid)
     await subscription.create()
 
-    subscription.onMessage((event: any) => {
-      console.log('found-match-' + myuuid)
-      sessionStorage.setItem('game', event.data)
+    subscription.onMessage(async (data: any) => {
+      console.log('found-match-' + myuuid, data)
+      sessionStorage.setItem('game', data)
+      await subscription.delete()
       window.location.replace('/game')
-    })
-    window.addEventListener('unload', function (e) {
-      if (!localStorage.getItem('deck')) return
-
-      axios.create({
-        baseURL: '/api/matchmaking?uuid=' + myuuid,
-        timeout: 1000,
-        httpAgent: new http.Agent({ keepAlive: true }),
-      })
-      // axios.delete('/api/matchmaking?uuid=' + myuuid)
-      // fetch('/api/matchmaking?uuid=' + myuuid, {
-      //   method: 'DELETE',
-      //   keepalive: true,
-      // })
     })
   })
 

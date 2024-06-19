@@ -20,13 +20,9 @@ router.post('api/deck-validate', [DeckValidateController, 'index'])
 
 const MatchmakingController = () => import('#controllers/api/matchmaking_controller')
 router.post('api/matchmaking', [MatchmakingController, 'index'])
-router.delete('api/matchmaking', [MatchmakingController, 'delete'])
 
 const GameConnectController = () => import('#controllers/api/game_connect_controller')
 router.post('api/game-connect', [GameConnectController, 'index'])
 
 const ActionController = () => import('#controllers/api/action_controller')
 router.post('api/action', [ActionController, 'index'])
-
-const MatchmakingSubController = () => import('#controllers/api/matchmaking_sub_controller')
-router.get('api/matchmaking-sub', [MatchmakingSubController, 'index'])
