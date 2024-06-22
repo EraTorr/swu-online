@@ -6,6 +6,7 @@ export default class ActionController {
     if (request.header('Content-Type') === 'application/json') {
       const body = request.body()
 
+      // console.log('handleAction', request.body())
       handleAction(body.action, body.data)
     }
 

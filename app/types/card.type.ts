@@ -26,6 +26,7 @@ export type Card = {
   side: string
   shield: number
   experience: number
+  equipment: Array<Card>
 }
 
 export type MoveCardType = {

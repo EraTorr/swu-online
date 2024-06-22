@@ -12,6 +12,8 @@ import {
   startPhase,
   type GameType,
   shuffleDeck,
+  shuffleCard,
+  changeStats,
 } from './game.js'
 
 import { Card } from '#types/card.type.js'
@@ -135,8 +137,6 @@ export const handleAction = async (action: string, data: any) => {
       drawCard(data.gameId, data.action)
       break
     case 'look':
-      console.log('look', data)
-
       lookCard(data.gameId, data.action)
       break
     case 'discard':
@@ -149,7 +149,10 @@ export const handleAction = async (action: string, data: any) => {
       damageCard(data.gameId, data.action)
       break
     case 'shuffle':
-      // shuffleCard(data.gameId, data.shuffle);
+      shuffleCard(data.gameId, data.action)
+      break
+    case 'changestats':
+      changeStats(data.gameId, data.action)
       break
   }
 }

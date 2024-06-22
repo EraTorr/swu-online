@@ -55,6 +55,9 @@ export const GameCard: Component<GameCardProps> = (props) => {
     if (merged.cardData.type === 'Base') {
       return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathFront + '.png'
     }
+    if (merged.cardData.type === 'Leader' && ['ground', 'space'].includes(merged.area)) {
+      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathBack + '.png'
+    }
     return (
       'https://ik.imagekit.io/nrqvxs6itqd/SWU/' +
       (visibleSide() === 'back' ? merged.pathBack : merged.pathFront) +
@@ -90,8 +93,8 @@ export const GameCard: Component<GameCardProps> = (props) => {
     const els = document.elementsFromPoint(event.clientX, event.clientY) as Array<HTMLElement>
 
     let [playerZone, area] = ['', '']
-    for (let i = 0; i < els.length; i++) {
-      const dataAction = els[i].dataset.action
+    for (const el of els) {
+      const dataAction = el.dataset.action
       if (dataAction) {
         ;[playerZone, area] = dataAction.split('-')
         break
@@ -117,13 +120,6 @@ export const GameCard: Component<GameCardProps> = (props) => {
     stopEvent(event)
 
     setVisibleSide(visibleSide() === 'back' ? 'front' : 'back')
-
-    if (showActionListAlpine()) {
-      toggleActionList()
-    }
-    console.log('fl;ip')
-    const e = new CustomEvent('sendMessage', { detail: { action: 'flip', data: 'test' } })
-    document.dispatchEvent(e)
   }
   const toggleActionList = () => {
     setShowActionListAlpine(!showActionListAlpine())
@@ -159,6 +155,24 @@ export const GameCard: Component<GameCardProps> = (props) => {
         classList={{ exhausted: !!merged.cardData.exhaust }}
       >
         <img class="in-game" src={urlVisible()} alt={alt} draggable="false" />
+        <Show when={['space', 'ground'].includes(merged.area) && merged.cardData.modifiedHp}>
+          <Show when={merged.cardData.experience}>
+            <span class="stats xp">
+              {merged.cardData.experience} <span>XP</span>
+            </span>
+          </Show>
+          <Show when={merged.cardData.shield}>
+            <span class="stats shield">{merged.cardData.shield}</span>
+          </Show>
+          <span class="stats power">{merged.cardData.modifiedPower}</span>
+          <span class="stats hp">{merged.cardData.modifiedHp}</span>
+        </Show>
+        <Show when={['base'].includes(merged.area)}>
+          <Show when={merged.cardData.shield}>
+            <span class="stats shield">{merged.cardData.shield}</span>
+          </Show>
+          <span class="stats hp">{merged.cardData.modifiedHp}</span>
+        </Show>
       </div>
       <Show when={merged.cardData.number !== '0' && merged.cardData.number !== '000'}>
         <img class="swu-card in-display" src={urlVisible(true)} alt={alt} draggable="false" />

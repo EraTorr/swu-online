@@ -1,6 +1,7 @@
 import { sorCard } from '../data/sor.js'
 import { v4 as uuidv4 } from 'uuid'
 import { Card, MoveCardType } from '#types/card.type.js'
+import { broadcastResponse } from './action.js'
 
 export type GameType = {
   gameId: string
@@ -91,10 +92,6 @@ export default class GameService {
 
   setGame(uuid: string, game: GameType): void {
     this.games.set(uuid, game)
-    // const encoder = new TextEncoder();
-    // const message = encoder.encode(`data: ${JSON.stringify(game)}\n\n`);
-
-    // this.controllers.forEach((controller) => controller.enqueue(message));
   }
 }
 
@@ -190,7 +187,7 @@ export const startPhase = (gameId: string) => {
     discards,
   }
 
-  sendWS(game, dataP1, dataP2)
+  broadcastResponse(game, dataP1, dataP2)
 }
 
 export const reconnect = (gameId: string, playerUuid: string) => {
@@ -228,7 +225,7 @@ export const reconnect = (gameId: string, playerUuid: string) => {
       spaces,
       discards,
     }
-    sendWS(game, dataP1, null)
+    broadcastResponse(game, dataP1, null)
   } else {
     const dataP2 = {
       step: 'initGame',
@@ -252,7 +249,7 @@ export const reconnect = (gameId: string, playerUuid: string) => {
       discards,
     }
 
-    sendWS(game, null, dataP2)
+    broadcastResponse(game, null, dataP2)
   }
 }
 
@@ -271,13 +268,10 @@ export const prepareDeckCard = (id: string, owner: string) => {
 
 export const moveCard = (gameId: string, moveData: MoveCardType) => {
   const game = getGame(gameId) as GameType
-  console.log(game, moveData)
   const { card, side, area, fromArea, playerUuid } = moveData
 
   const fromSide = card.side === game.p1 ? 'p1' : 'p2'
   const player = playerUuid === game.p1 ? 'p1' : 'p2'
-  // const isFromPlayer = fromSide === player;
-  // const isToPlayer = side === player;
   const toSide = side === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
   console.log(fromArea, area, side, fromSide)
   if (fromArea === area && fromSide === toSide) return
@@ -295,6 +289,7 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       game.resources[fromSide].cards = newFrom
       break
     }
+    case 'display':
     case 'deck': {
       const from = game.decks[fromSide].playDeck as Array<Card>
       const newFrom = from.filter((cardFrom) => cardFrom.id !== card.id)
@@ -332,26 +327,36 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
   switch (area) {
     case 'hand': {
       const from = game.hands[toSide].cards as Array<Card>
+      newCard.modifiedHp = newCard.hp
+      newCard.modifiedPower = newCard.power
       game.hands[toSide].cards = [...from, newCard]
       break
     }
     case 'resource': {
       const from = game.resources[toSide].cards as Array<Card>
+      newCard.modifiedHp = newCard.hp
+      newCard.modifiedPower = newCard.power
       game.resources[toSide].cards = [...from, newCard]
       break
     }
     case 'deckbottom': {
       const from = game.decks[toSide].playDeck as Array<Card>
+      newCard.modifiedHp = newCard.hp
+      newCard.modifiedPower = newCard.power
       game.decks[toSide].playDeck = [...from, newCard]
       break
     }
     case 'decktop': {
       const from = game.decks[toSide].playDeck as Array<Card>
+      newCard.modifiedHp = newCard.hp
+      newCard.modifiedPower = newCard.power
       game.decks[toSide].playDeck = [newCard, ...from]
       break
     }
     case 'discard': {
       const from = game.discards[toSide].cards as Array<Card>
+      newCard.modifiedHp = newCard.hp
+      newCard.modifiedPower = newCard.power
       game.discards[toSide].cards = [...from, newCard]
       break
     }
@@ -370,8 +375,6 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
     }
   }
 
-  console.log('move', game)
-
   setGame(game)
 
   buildDataPlayer(gameId, playerUuid)
@@ -385,6 +388,7 @@ export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = f
     p1: game.decks.p1?.playDeck?.length ?? 0,
     p2: game.decks.p2?.playDeck?.length ?? 0,
   }
+  console.log('modifiedHp', game.bases.p1?.modifiedHp, game.bases.p2?.modifiedHp)
   const leaders = { p1: game.leaders.p1, p2: game.leaders.p2 }
   const bases = { p1: game.bases.p1, p2: game.bases.p2 }
   const grounds = { p1: game.grounds.p1?.cards, p2: game.grounds.p2?.cards }
@@ -413,7 +417,7 @@ export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = f
       spaces,
       discards,
     }
-    sendWS(game, dataP1, null)
+    broadcastResponse(game, dataP1, null)
   } else {
     const dataP2 = {
       step: 'updateData',
@@ -437,7 +441,7 @@ export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = f
       discards,
     }
 
-    sendWS(game, null, dataP2)
+    broadcastResponse(game, null, dataP2)
   }
 }
 
@@ -464,19 +468,79 @@ export const drawCard = (gameId: string, draw: any) => {
   buildDataPlayer(gameId, playerUuid, true)
 }
 
-export const lookCard = (gameId: string, action: any) => {
-  console.log(gameId, action)
+export const lookCard = (gameId: string, look: any) => {
+  const game = getGame(gameId) as GameType
+
+  const { value, playerUuid } = look
+
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+
+  const fromDeck = game.decks[player].playDeck as Array<Card>
+  const drawnedCards = fromDeck.slice(0, value)
+
+  const data = {
+    action: 'look',
+    cards: drawnedCards,
+  }
+
+  if (player === 'p1') {
+    broadcastResponse(game, data, null)
+  } else {
+    broadcastResponse(game, null, data)
+  }
+  console.log(gameId, look, player)
 }
-export const discardCard = (gameId: string, action: any) => {
-  console.log(gameId, action)
+
+export const discardCard = (gameId: string, discard: any) => {
+  const game = getGame(gameId) as GameType
+  const { value, playerUuid } = discard
+
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+
+  const fromDeck = game.decks[player].playDeck as Array<Card>
+  const drawnedCards = fromDeck.splice(0, value)
+
+  game.discards[player].cards = [...game.discards[player].cards, ...drawnedCards]
+
+  setGame(game)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
 }
 
 export const healCard = (gameId: string, action: any) => {
-  console.log(gameId, action)
+  healthCardEdit(gameId, action, true)
 }
 
 export const damageCard = (gameId: string, action: any) => {
-  console.log(gameId, action)
+  healthCardEdit(gameId, action)
+}
+
+export const healthCardEdit = (gameId: string, action: any, heal = false) => {
+  const game = getGame(gameId) as GameType
+  const { value, playerUuid, card } = action
+
+  const player = card.side === game.p1 ? 'p1' : 'p2'
+
+  let area: 'grounds' | 'spaces' = 'grounds'
+  let cardIndex = game.grounds[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+
+  if (cardIndex === -1) {
+    area = 'spaces'
+    cardIndex = game.spaces[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+  }
+
+  if (cardIndex > -1 && game[area][player].cards[cardIndex].modifiedHp) {
+    const cardToEdit = game[area][player].cards[cardIndex]
+
+    cardToEdit.modifiedHp = heal
+      ? (cardToEdit.modifiedHp as number) + value
+      : (cardToEdit.modifiedHp as number) - value
+  }
+  setGame(game)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
 }
 
 export const addUpgrade = () => {}
@@ -485,6 +549,13 @@ export const removeUpgrade = () => {}
 
 export const shuffleCard = (gameId: string, shuffle: any) => {
   const game = getGame(gameId) as GameType
+  const { playerUuid } = shuffle
+
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+
+  game.decks[player].playDeck = shuffleDeck(game.decks[player].playDeck as Array<Card>)
+
+  setGame(game)
 }
 
 export const hiddenCard = (
@@ -536,4 +607,38 @@ export const shuffleDeck = (deck: Array<Card>) => {
     ;[deckCopy[i], deckCopy[j]] = [deckCopy[j], deckCopy[i]]
   }
   return deckCopy
+}
+
+export const changeStats = (gameId: string, action: any) => {
+  const game = getGame(gameId) as GameType
+  console.log('action', action)
+  const { hp, power, playerUuid, card } = action
+  const player: 'p1' | 'p2' = card.side === game.p1 ? 'p1' : 'p2'
+
+  if (card.type === 'Base') {
+    const base = game.bases[player] as Card
+    base.modifiedHp = hp
+    game.bases[player] = base
+  } else {
+    let area: 'grounds' | 'spaces' = 'grounds'
+    let cardIndex = game.grounds[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+
+    if (cardIndex === -1) {
+      area = 'spaces'
+      cardIndex = game.spaces[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+    }
+
+    if (cardIndex > -1 && game[area][player].cards[cardIndex].modifiedHp) {
+      const cardToEdit = game[area][player].cards[cardIndex]
+
+      cardToEdit.modifiedHp = hp
+      cardToEdit.modifiedPower = power
+    }
+  }
+
+  setGame(game)
+  console.log('action', game.bases)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
 }

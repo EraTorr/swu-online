@@ -46,12 +46,14 @@ export const GameComponent: Component = (props) => {
   const [spaceCards, setSpaceCards] = createSignal<Array<Card>>([])
   const [opponentGroundCards, setOpponentGroundCards] = createSignal<Array<Card>>([])
   const [opponentSpaceCards, setOpponentSpaceCards] = createSignal<Array<Card>>([])
+  const [centralDisplayCards, setCentralDisplayCards] = createSignal<Array<Card>>([])
   const [centralDisplayChildren, setCentralDisplayChildren] = createSignal<JSXElement>(null)
 
   const updateData = (data: any) => {
-    console.log(data)
+    console.log(data.bases.p1, data.bases.p2)
     if (myuuid === data.leaders.p1.owner) {
       setLeader(data.leaders.p1)
+      setBase(undefined)
       setBase(data.bases.p1)
       setDeckCount(data.decksCount.p1)
       setResourcesCards(data.resources.p1)
@@ -61,6 +63,7 @@ export const GameComponent: Component = (props) => {
       setDiscardPileCards(data.discards.p1)
 
       setOpponentLeader(data.leaders.p2)
+      setOpponentBase(undefined)
       setOpponentBase(data.bases.p2)
       setOpponentDeckCount(data.decksCount.p2)
       setOpponentResourcesCards(data.resources.p2)
@@ -70,6 +73,7 @@ export const GameComponent: Component = (props) => {
       setOpponentDiscardPileCards(data.discards.p2)
     } else {
       setLeader(data.leaders.p2)
+      setBase(undefined)
       setBase(data.bases.p2)
       setDeckCount(data.decksCount.p2)
       setResourcesCards(data.resources.p2)
@@ -79,6 +83,7 @@ export const GameComponent: Component = (props) => {
       setDiscardPileCards(data.discards.p2)
 
       setOpponentLeader(data.leaders.p1)
+      setOpponentBase(undefined)
       setOpponentBase(data.bases.p1)
       setOpponentDeckCount(data.decksCount.p1)
       setOpponentResourcesCards(data.resources.p1)
@@ -106,23 +111,13 @@ export const GameComponent: Component = (props) => {
     }
 
     const subscription = transmit.subscription('game/' + gameId + '/' + myuuid)
-    subscription.create()
-
-    axios.post(
-      '/api/action',
-      JSON.stringify({ action: 'acknowledge', data: { uuid: myuuid, gameId } }),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    )
+    await subscription.create()
 
     subscription.onMessage(async (event: any) => {
       console.log('game-' + gameId, event)
 
-      const data = await JSON.parse(event.data)
-
+      const eventParsed = await JSON.parse(event)
+      const data = eventParsed.data
       console.log('message', data)
       if (data.step) {
         executeStep(data)
@@ -160,6 +155,9 @@ export const GameComponent: Component = (props) => {
               }
             )
           }
+          if (data.action === 'look') {
+            setCentralDisplay(data.cards)
+          }
         }
       }
     })
@@ -181,18 +179,43 @@ export const GameComponent: Component = (props) => {
       )
     })
 
-    // newListener(socket, 'error', (event) => {
-    //   console.log(event)
-    //   window.location.replace('pregame')
-    // })
-    // window.onbeforeunload = () => {
-    // 	fetch("/api/close-ws", {method: "GET"})
-    // }
-
     window.addEventListener('unload', async function (e) {
       await subscription.delete()
     })
+
+    axios.post(
+      '/api/action',
+      JSON.stringify({ action: 'acknowledge', data: { uuid: myuuid, gameId } }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
   })
+
+  const setCentralDisplay = (cardList: Array<Card>) => {
+    setCentralDisplayCards(cardList)
+    setCentralDisplayChildren(
+      cardList.length ? (
+        <For each={cardList}>
+          {(card, index) => {
+            return (
+              <GameCard
+                name={card.id}
+                cardData={card}
+                pathFront={card.number === '000' ? 'card_back' : 'SOR/' + card.number}
+                pathBack={card.type === 'Leader' ? 'SOR/' + card.number + '-b' : undefined}
+                openActions={openActions}
+                area="display"
+                pushNewPosition={cardPushNewPosition}
+              ></GameCard>
+            )
+          }}
+        </For>
+      ) : null
+    )
+  }
 
   const openActions = (e: ActionsData) => {
     setActionsData(e)
@@ -211,19 +234,39 @@ export const GameComponent: Component = (props) => {
     } else if (e.startsWith('to')) {
       const split = e.split('_')
 
+      if (actionData.area === 'display') {
+        const cardsList = centralDisplayCards()
+        const index = cardsList.findIndex((c: Card) => c.id === card.id)
+        cardsList.splice(index, 1)
+        setCentralDisplay(cardsList)
+      }
       cardPushNewPosition(card, split[2], split[1], actionData.area)
       setActionsData(null)
       // TODO
-    } else if (['draw', 'look', 'discard', 'heal', 'damage'].includes(e) && !value) {
+    } else if (['draw', 'look', 'discard', 'heal', 'damage', 'changeStats'].includes(e) && !value) {
       setActionsData({
         ...actionData,
         type: e,
       })
     } else if (['draw', 'look', 'discard', 'heal', 'damage'].includes(e)) {
-      // const split = e.split('_');
-      sendXAction(e, Number.parseInt(value), card)
+      sendXAction(e, value, card)
+      setActionsData(null)
+    } else if (e === 'changestats') {
+      const data: any = {
+        hp: value.hp,
+        power: value.power,
+        playerUuid: myuuid,
+        card: card,
+      }
+
+      sendAction('changestats', { action: data })
       setActionsData(null)
     } else {
+      const data: any = {
+        playerUuid: myuuid,
+      }
+      sendAction(e, { action: data })
+
       setActionsData(null)
     }
 
@@ -270,56 +313,6 @@ export const GameComponent: Component = (props) => {
     }
   }
 
-  const calculateInitialPositionAbsolute = (
-    card: Card,
-    index: number = 0,
-    area: string | null = null
-  ): { x: number; y: number } => {
-    let side = 'top'
-    if (card.side === myuuid) side = 'bottom'
-    console.log('dsd', card.side, myuuid)
-    if (area) {
-      const el = element.querySelectorAll('.' + side + ' .' + area)[0]
-      console.log('el.children.length', el.children.length)
-      const b = el.getBoundingClientRect()
-      return { x: b.left + b.width / 2 - 50, y: b.top + b.height / 2 - 71.8 / 2 }
-    }
-
-    if (['Base', 'Leader'].includes(card.type)) {
-      const type = card.type.toLowerCase()
-      console.log(card, side, type)
-
-      const b = element.querySelectorAll('.' + side + ' .' + type)[0].getBoundingClientRect()
-      return { x: b.left + b.width / 2 - 50, y: b.top + b.height / 2 - 71.8 / 2 }
-    }
-    return { x: 20 + index * 40, y: 20 + index * 40 }
-  }
-
-  const calculateInitialPositionRelative = (
-    card: Card,
-    index: number = 0,
-    area: string | null = null
-  ): { x: number; y: number } => {
-    let side = 'top'
-    if (card.side === myuuid) side = 'bottom'
-    console.log('dsd', card.side, myuuid)
-    if (area) {
-      const el = element.querySelectorAll('.' + side + ' .' + area)[0]
-      console.log('el.children.length', el.children.length)
-      const b = el.getBoundingClientRect()
-      return { x: b.width / 2 - 50, y: b.height / 2 - 50 }
-    }
-
-    if (['Base', 'Leader'].includes(card.type)) {
-      const type = card.type.toLowerCase()
-      console.log(card, side, type)
-
-      const b = element.querySelectorAll('.' + side + ' .' + type)[0].getBoundingClientRect()
-      return { x: b.width / 2 - 50, y: b.height / 2 - 71.8 / 2 }
-    }
-    return { x: 20 + index * 40, y: 20 + index * 40 }
-  }
-
   const cardPushNewPosition = (card: Card, side: string, area: string, fromArea: string): void => {
     const move: MoveCardType = {
       card,
@@ -329,6 +322,7 @@ export const GameComponent: Component = (props) => {
       playerUuid: myuuid,
     }
     console.log('sendWS', 'moveCard', { move })
+    sendAction('moveCard', { move })
   }
 
   const sendXAction = (action: string, count: number, card: Card): void => {
@@ -336,11 +330,28 @@ export const GameComponent: Component = (props) => {
       value: count,
       playerUuid: myuuid,
       card: card,
-      sideUuid: myuuid,
     }
-    console.log('se', data)
-    console.log('sendWS', action, { action: data })
+
+    sendAction(action, { action: data })
     return
+  }
+
+  const sendAction = (action: string, data: any) => {
+    axios.post(
+      '/api/action',
+      JSON.stringify({
+        action: action,
+        data: {
+          gameId: gameId,
+          ...data,
+        },
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
   }
 
   const showDiscardPile = (side: string): void => {
@@ -355,7 +366,7 @@ export const GameComponent: Component = (props) => {
                 pathFront={card.number === '000' ? 'card_back' : 'SOR/' + card.number}
                 pathBack={card.type === 'Leader' ? 'SOR/' + card.number + '-b' : undefined}
                 openActions={openActions}
-                area="hand"
+                area="discard"
                 pushNewPosition={cardPushNewPosition}
               ></GameCard>
             )

@@ -1,4 +1,5 @@
 import { GameComponent } from '../components/game_component'
+import '../css/main-game.css'
 
 export default function Game() {
   return (

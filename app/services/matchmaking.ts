@@ -37,8 +37,6 @@ export default class MatchmakingService {
 
     setGame(gameState)
 
-    console.log('gameState', JSON.stringify(gameState))
-
     transmit.broadcast('matchmaking/' + uuidP2, JSON.stringify(gameState))
 
     return gameState
