@@ -6,12 +6,18 @@ export default function Matchmaking() {
   onMount(async () => {
     if (!localStorage.getItem('deck')) window.location.replace('pregame')
     let myuuid = localStorage.getItem('myuuid')
+    let matchmakingId = localStorage.getItem('matchmaking-id') ?? ''
+    localStorage.removeItem('matchmaking-id')
 
-    const response = await axios.post('/api/matchmaking', JSON.stringify({ uuid: myuuid }), {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    const response = await axios.post(
+      '/api/matchmaking',
+      JSON.stringify({ uuid: myuuid, matchmakingId: matchmakingId }),
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    )
 
     if (response.status === 200) {
       const data = response.data
@@ -34,6 +40,10 @@ export default function Matchmaking() {
       sessionStorage.setItem('game', data)
       await subscription.delete()
       window.location.replace('/game')
+    })
+
+    window.addEventListener('unload', async function (e) {
+      axios.delete('/api/matchmaking?uuid=' + myuuid)
     })
   })
 

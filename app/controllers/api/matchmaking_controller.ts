@@ -6,20 +6,26 @@ import MatchmakingService from '#services/matchmaking'
 export default class MatchmakingController {
   async index(ctx: HttpContext) {
     if (ctx.request.header('Content-Type') === 'application/json') {
-      let { uuid } = ctx.request.body()
+      let { uuid, matchmakingId } = ctx.request.body()
 
       try {
-        const opponentFound = await getOpponent(uuid)
+        uuid = typeof uuid === 'string' ? uuid : uuidv4()
+        const opponentFound = await getOpponent(uuid, matchmakingId)
 
-        uuid = uuid instanceof String ? uuid : uuidv4()
         if (opponentFound) {
           console.log('opponentFound', opponentFound)
           const game = MatchmakingService.getInstance().createGame(uuid, opponentFound)
           return ctx.response.status(200).send(JSON.stringify({ uuid, game }))
         }
 
-        const randNumber = Math.floor(Math.random() * 5) + 1
-        await redis.zadd('matchmaking', { nx: true }, { score: randNumber, member: uuid })
+        if (matchmakingId?.length) {
+          const temp: { [field: string]: unknown } = {}
+          temp[matchmakingId] = uuid
+          await redis.hset('matchmakingId', temp)
+        } else {
+          const randNumber = Math.floor(Math.random() * 5) + 1
+          await redis.zadd('matchmaking', { nx: true }, { score: randNumber, member: uuid })
+        }
       } catch (error) {
         console.error(error)
       }
@@ -28,9 +34,23 @@ export default class MatchmakingController {
     }
     return ctx.response.status(400)
   }
+
+  async delete(ctx: HttpContext) {
+    console.log('delete uuid', ctx.request.qs().uuid)
+    redis.zrem('matchmaking', ctx.request.qs().uuid)
+
+    return ctx.response.status(200)
+  }
 }
 
-const getOpponent = async (uuidP1: string) => {
+const getOpponent = async (uuidP1: string, matchmakingId: string) => {
+  if (matchmakingId?.length) {
+    const opponentUuid: string | null = await redis.hget('matchmakingId', matchmakingId)
+    if (opponentUuid) {
+      redis.hdel('matchmakingId', matchmakingId)
+    }
+    return opponentUuid
+  }
   let array = [1, 2, 3, 4, 5]
   let currentIndex = array.length
 

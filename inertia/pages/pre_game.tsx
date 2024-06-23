@@ -42,6 +42,12 @@ export default function PreGame() {
         </button>
 
         <Show when={showMatchMakingButton()}>
+          <label for="matchmaking-id">Code matchmaking with friend</label>
+          <input
+            name="matchmaking-id"
+            id="matchmaking-id"
+            onInput={(e) => localStorage.setItem('matchmaking-id', e.target.value)}
+          />
           <a href="matchmaking">Search game</a>
         </Show>
       </div>
