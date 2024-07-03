@@ -1,3 +1,5 @@
+import { Card } from './card.type.js'
+
 export type GameType = {
   gameId: string
   p1: string
