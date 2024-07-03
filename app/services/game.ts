@@ -2,6 +2,7 @@ import { sorCard } from '../data/sor.js'
 import { v4 as uuidv4 } from 'uuid'
 import { Card, MoveCardType } from '#types/card.type.js'
 import { broadcastResponse } from './action.js'
+import { shdCard } from '../data/shd.js'
 
 export type GameType = {
   gameId: string
@@ -256,8 +257,11 @@ export const reconnect = (gameId: string, playerUuid: string) => {
 export const prepareDeckCard = (id: string, owner: string) => {
   let tempCard
   const [set, number] = id.split('_')
+  console.log('set', set, set === 'SHD')
   if (set === 'SOR') {
     tempCard = sorCard[Number.parseInt(number) - 1]
+  } else if (set === 'SHD') {
+    tempCard = shdCard[Number.parseInt(number) - 1]
   } else {
     tempCard = sorCard[Number.parseInt(number) - 1]
   }
