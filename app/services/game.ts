@@ -257,7 +257,6 @@ export const reconnect = (gameId: string, playerUuid: string) => {
 export const prepareDeckCard = (id: string, owner: string) => {
   let tempCard
   const [set, number] = id.split('_')
-  console.log('set', set, set === 'SHD')
   if (set === 'SOR') {
     tempCard = sorCard[Number.parseInt(number) - 1]
   } else if (set === 'SHD') {
@@ -642,6 +641,58 @@ export const changeStats = (gameId: string, action: any) => {
 
   setGame(game)
   console.log('action', game.bases)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
+}
+
+export const exhaustCard = (gameId: string, action: any) => {
+  const game = getGame(gameId) as GameType
+
+  const { playerUuid, card } = action
+  console.log('exhaustCard', (card as Card).type)
+
+  const player = card.side === game.p1 ? 'p1' : 'p2'
+
+  let area: 'grounds' | 'spaces' | 'leaders' | 'bases' | 'resources'
+
+  let cardIndex = -1
+  if (card.type === 'Base') {
+    area = 'bases'
+  } else if (card.type === 'Leader') {
+    area = 'leaders'
+
+    cardIndex = game.grounds[player].cards.findIndex((c) => c.id === card.id)
+    if (cardIndex > -1) {
+      area = 'grounds'
+    }
+  } else {
+    area = 'grounds'
+    cardIndex = game.grounds[player].cards.findIndex((c) => c.id === card.id)
+
+    if (cardIndex === -1) {
+      area = 'spaces'
+      cardIndex = game.spaces[player].cards.findIndex((c) => c.id === card.id)
+    }
+
+    if (cardIndex === -1) {
+      area = 'resources'
+      cardIndex = game.resources[player].cards.findIndex((c) => c.id === card.id)
+    }
+  }
+
+  if (area === 'bases' || area === 'leaders' || cardIndex > -1) {
+    let cardToEdit: Card
+    if (area === 'bases' || area === 'leaders') {
+      cardToEdit = game[area][player] as Card
+    } else {
+      cardToEdit = game[area][player].cards[cardIndex]
+    }
+
+    cardToEdit.exhaust = !cardToEdit.exhaust
+  }
+
+  setGame(game)
 
   buildDataPlayer(gameId, playerUuid)
   buildDataPlayer(gameId, playerUuid, true)

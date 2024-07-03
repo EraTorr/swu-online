@@ -52,6 +52,7 @@ export const GameComponent: Component = (props) => {
   const updateData = (data: any) => {
     console.log(data.bases.p1, data.bases.p2)
     if (myuuid === data.leaders.p1.owner) {
+      setLeader(undefined)
       setLeader(data.leaders.p1)
       setBase(undefined)
       setBase(data.bases.p1)
@@ -62,6 +63,7 @@ export const GameComponent: Component = (props) => {
       setSpaceCards(data.spaces.p1)
       setDiscardPileCards(data.discards.p1)
 
+      setOpponentLeader(undefined)
       setOpponentLeader(data.leaders.p2)
       setOpponentBase(undefined)
       setOpponentBase(data.bases.p2)
@@ -72,6 +74,7 @@ export const GameComponent: Component = (props) => {
       setOpponentSpaceCards(data.spaces.p2)
       setOpponentDiscardPileCards(data.discards.p2)
     } else {
+      setLeader(undefined)
       setLeader(data.leaders.p2)
       setBase(undefined)
       setBase(data.bases.p2)
@@ -82,6 +85,7 @@ export const GameComponent: Component = (props) => {
       setSpaceCards(data.spaces.p2)
       setDiscardPileCards(data.discards.p2)
 
+      setOpponentLeader(undefined)
       setOpponentLeader(data.leaders.p1)
       setOpponentBase(undefined)
       setOpponentBase(data.bases.p1)
@@ -243,6 +247,12 @@ export const GameComponent: Component = (props) => {
       cardPushNewPosition(card, split[2], split[1], actionData.area)
       setActionsData(null)
       // TODO
+    } else if (e === 'invoke') {
+      cardPushNewPosition(card, 'player', 'ground', actionData.area)
+      setActionsData(null)
+    } else if (e === 'discard') {
+      cardPushNewPosition(card, 'player', 'leader', actionData.area)
+      setActionsData(null)
     } else if (['draw', 'look', 'discard', 'heal', 'damage', 'changeStats'].includes(e) && !value) {
       setActionsData({
         ...actionData,
@@ -264,6 +274,7 @@ export const GameComponent: Component = (props) => {
     } else {
       const data: any = {
         playerUuid: myuuid,
+        card: card,
       }
       sendAction(e, { action: data })
 

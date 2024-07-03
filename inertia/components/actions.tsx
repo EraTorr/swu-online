@@ -59,7 +59,8 @@ export const Actions: Component<ActionsProps> = (props) => {
           ['flip', 'Flip'],
           // ['action', 'Action'],
           ['invoke', 'Invoke'],
-          ['exhaust', 'Exhaust']
+          ['exhaust', 'Exhaust'],
+          ['discard', 'Discard']
         )
         break
       case 'base':

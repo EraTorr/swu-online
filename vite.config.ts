@@ -13,7 +13,15 @@ export default defineConfig({
       reload: ['resources/views/**/*.edge'],
     }),
   ],
-
+  server: {
+    port: 3000,
+    // https: true,
+    hmr: {
+      host: 'localhost',
+      port: 3001,
+      protocol: 'ws',
+    },
+  },
   /**
    * Define aliases for importing modules from
    * your frontend code

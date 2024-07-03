@@ -19,8 +19,11 @@
   }
 
   &.exhausted {
-    filter: grayscale(1) contrast(0.4);
     transform: rotateZ(5deg);
+
+    img {
+      filter: grayscale(1) contrast(0.4);
+    }
   }
 
   > img {
