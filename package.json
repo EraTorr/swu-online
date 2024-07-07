@@ -74,6 +74,7 @@
     "edge.js": "^6.0.2",
     "inertia-adapter-solid": "^0.2.0",
     "luxon": "^3.4.4",
+    "redis": "^4.6.15",
     "reflect-metadata": "^0.2.2",
     "solid-js": "^1.8.17",
     "uuid": "^10.0.0",

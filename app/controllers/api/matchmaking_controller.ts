@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
-import { redis } from '#services/valkey'
 import { HttpContext } from '@adonisjs/core/http'
 import MatchmakingService from '#services/matchmaking'
+import { redis } from '#services/redis'
 
 export default class MatchmakingController {
   async index(ctx: HttpContext) {
@@ -19,12 +19,10 @@ export default class MatchmakingController {
         }
 
         if (matchmakingId?.length) {
-          const temp: { [field: string]: unknown } = {}
-          temp[matchmakingId] = uuid
-          await redis.hset('matchmakingId', temp)
+          await redis.hSet('matchmakingId', matchmakingId, uuid)
         } else {
           const randNumber = Math.floor(Math.random() * 5) + 1
-          await redis.zadd('matchmaking', { nx: true }, { score: randNumber, member: uuid })
+          await redis.zAdd('matchmaking', { score: randNumber, value: uuid }, { NX: true })
         }
       } catch (error) {
         console.error(error)
@@ -37,7 +35,7 @@ export default class MatchmakingController {
 
   async delete(ctx: HttpContext) {
     console.log('delete uuid', ctx.request.qs().uuid)
-    redis.zrem('matchmaking', ctx.request.qs().uuid)
+    redis.zRem('matchmaking', ctx.request.qs().uuid)
 
     return ctx.response.status(200)
   }
@@ -45,9 +43,9 @@ export default class MatchmakingController {
 
 const getOpponent = async (uuidP1: string, matchmakingId: string) => {
   if (matchmakingId?.length) {
-    const opponentUuid: string | null = await redis.hget('matchmakingId', matchmakingId)
+    const opponentUuid: string | null = (await redis.hGet('matchmakingId', matchmakingId)) ?? null
     if (opponentUuid) {
-      redis.hdel('matchmakingId', matchmakingId)
+      redis.hDel('matchmakingId', matchmakingId)
     }
     return opponentUuid
   }
@@ -66,12 +64,12 @@ const getOpponent = async (uuidP1: string, matchmakingId: string) => {
 
   let uuidP2: string | null = null
   for (const number of array) {
-    const res: Array<string> = await redis.zrange('matchmaking', number - 1, number + 1)
+    const res: Array<string> = await redis.zRange('matchmaking', number - 1, number + 1)
     const filtered = res.filter((uuid) => uuid !== uuidP1)
     if (filtered.length === 0) continue
     const t = Math.floor(Math.random() * filtered.length)
     uuidP2 = filtered[t]
-    await redis.zrem('matchmaking', uuidP2)
+    await redis.zRem('matchmaking', uuidP2)
 
     break
   }
