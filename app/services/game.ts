@@ -519,6 +519,60 @@ export const damageCard = (gameId: string, action: any) => {
   healthCardEdit(gameId, action)
 }
 
+export const changeExperience = (gameId: string, action: any) => {
+  const game = getGame(gameId) as GameType
+  const { value, playerUuid, card } = action
+
+  const player = card.side === game.p1 ? 'p1' : 'p2'
+
+  let area: 'grounds' | 'spaces' = 'grounds'
+  let cardIndex = game.grounds[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+
+  if (cardIndex === -1) {
+    area = 'spaces'
+    cardIndex = game.spaces[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+  }
+
+  if (cardIndex > -1 && game[area][player].cards[cardIndex].modifiedHp) {
+    const cardToEdit = game[area][player].cards[cardIndex]
+    const currentExp = cardToEdit.experience
+    const diff = currentExp - value
+    cardToEdit.experience = value
+    cardToEdit.modifiedHp = Math.max(0, (cardToEdit.modifiedHp ?? 0) - diff)
+    cardToEdit.modifiedPower = Math.max(0, (cardToEdit.modifiedPower ?? 0) - diff)
+  }
+  setGame(game)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
+}
+
+export const changeShield = (gameId: string, action: any) => {
+  const game = getGame(gameId) as GameType
+  const { value, playerUuid, card } = action
+
+  const player = card.side === game.p1 ? 'p1' : 'p2'
+
+  let area: 'grounds' | 'spaces' = 'grounds'
+  let cardIndex = game.grounds[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+
+  if (cardIndex === -1) {
+    area = 'spaces'
+    cardIndex = game.spaces[player].cards.findIndex((groundCard) => groundCard.id === card.id)
+  }
+
+  if (cardIndex > -1 && game[area][player].cards[cardIndex].modifiedHp) {
+    const cardToEdit = game[area][player].cards[cardIndex]
+
+    cardToEdit.shield = value
+    console.log('cardToEdit', cardToEdit, action)
+  }
+  setGame(game)
+
+  buildDataPlayer(gameId, playerUuid)
+  buildDataPlayer(gameId, playerUuid, true)
+}
+
 export const healthCardEdit = (gameId: string, action: any, heal = false) => {
   const game = getGame(gameId) as GameType
   const { value, playerUuid, card } = action

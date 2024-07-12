@@ -228,7 +228,6 @@ export const GameComponent: Component = (props) => {
   const sendEvent = (e: string, value?: any) => {
     const actionData = actionsData() as ActionsData
     const card = actionsData()?.card as Card
-    console.log(actionsData())
 
     if (e.includes('moveto')) {
       setActionsData({
@@ -253,12 +252,26 @@ export const GameComponent: Component = (props) => {
     } else if (e === 'discard') {
       cardPushNewPosition(card, 'player', 'leader', actionData.area)
       setActionsData(null)
-    } else if (['draw', 'look', 'discard', 'heal', 'damage', 'changeStats'].includes(e) && !value) {
+    } else if (
+      [
+        'draw',
+        'look',
+        'discard',
+        'heal',
+        'damage',
+        'changeStats',
+        'changeShield',
+        'changeExperience',
+      ].includes(e) &&
+      !value
+    ) {
       setActionsData({
         ...actionData,
         type: e,
       })
-    } else if (['draw', 'look', 'discard', 'heal', 'damage'].includes(e)) {
+    } else if (
+      ['draw', 'look', 'discard', 'heal', 'damage', 'changeshield', 'changeexperience'].includes(e)
+    ) {
       sendXAction(e, value, card)
       setActionsData(null)
     } else if (e === 'changestats') {
@@ -280,8 +293,6 @@ export const GameComponent: Component = (props) => {
 
       setActionsData(null)
     }
-
-    console.log(card, e, actionsData())
   }
 
   const executeStep = (data: any) => {

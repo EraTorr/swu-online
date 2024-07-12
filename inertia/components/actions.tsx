@@ -57,18 +57,13 @@ export const Actions: Component<ActionsProps> = (props) => {
       case 'leader':
         actionsToSet.push(
           ['flip', 'Flip'],
-          // ['action', 'Action'],
           ['invoke', 'Invoke'],
           ['exhaust', 'Exhaust'],
           ['discard', 'Discard']
         )
         break
       case 'base':
-        actionsToSet.push(
-          // ['epic', 'Epic action'],
-          ['changeStats', 'Change Life'],
-          ['exhaust', 'Exhaust']
-        )
+        actionsToSet.push(['changeStats', 'Change Life'], ['exhaust', 'Exhaust'])
         break
       case 'deck':
         actionsToSet.push(
@@ -89,39 +84,6 @@ export const Actions: Component<ActionsProps> = (props) => {
           ['to_deckbottom', 'Deck bottom']
         )
         break
-      case 'draw':
-        actionsToSet.push(
-          ['draw_1', '1'],
-          ['draw_2', '2'],
-          ['draw_3', '3'],
-          ['draw_4', '4'],
-          ['draw_5', '5']
-        )
-
-        areaAction = ''
-        break
-      case 'discard':
-        actionsToSet.push(
-          ['discard_1', '1'],
-          ['discard_2', '2'],
-          ['discard_3', '3'],
-          ['discard_4', '4'],
-          ['discard_5', '5']
-        )
-
-        areaAction = ''
-        break
-      case 'look':
-        actionsToSet.push(
-          ['look_1', '1'],
-          ['look_2', '2'],
-          ['look_3', '3'],
-          ['look_4', '4'],
-          ['look_5', '5']
-        )
-
-        areaAction = ''
-        break
       default:
         actionsToSet.push(
           ['moveto_player', 'Move to (You)'],
@@ -137,24 +99,15 @@ export const Actions: Component<ActionsProps> = (props) => {
       case 'hand':
         actionsToSet.push(['play', 'Play'], ['reveal', 'Reveal'])
         break
+      case 'ground':
       case 'space':
         actionsToSet.push(
           ['action', 'Action'],
           ['attack', 'Attack'],
-          ['changeStats', 'Change Stats'],
-          ['exhaust', 'Exhaust']
-          // ['damage', 'Damage X'],
-          // ['heal', 'Heal X']
-        )
-        break
-      case 'ground':
-        actionsToSet.push(
-          ['action', 'Action'],
-          ['attack', 'Attack'],
-          ['changeStats', 'Change Stats'],
-          ['exhaust', 'Exhaust']
-          // ['damage', 'Damage X'],
-          // ['heal', 'Heal X']
+          ['changeStats', 'Stats'],
+          ['exhaust', 'Exhaust'],
+          ['changeShield', 'Shield'],
+          ['changeExperience', 'Experience']
         )
         break
       case 'resource':
@@ -206,9 +159,16 @@ export const Actions: Component<ActionsProps> = (props) => {
       <ul>
         <Show
           when={
-            !['look', 'discard', 'draw', 'heal', 'damage', 'changestats'].includes(
-              props.data.type.toLowerCase()
-            )
+            ![
+              'look',
+              'discard',
+              'draw',
+              'heal',
+              'damage',
+              'changestats',
+              'changeshield',
+              'changeexperience',
+            ].includes(props.data.type.toLowerCase())
           }
         >
           <For each={actions()}>
@@ -216,14 +176,27 @@ export const Actions: Component<ActionsProps> = (props) => {
           </For>
         </Show>
         <Show
-          when={['look', 'discard', 'draw', 'heal', 'damage'].includes(
-            props.data.type.toLowerCase()
-          )}
+          when={[
+            'look',
+            'discard',
+            'draw',
+            'heal',
+            'damage',
+            'changeshield',
+            'changeexperience',
+          ].includes(props.data.type.toLowerCase())}
         >
           <input
             id="value"
             type="number"
-            value={1}
+            min="0"
+            value={
+              props.data.type.toLowerCase() === 'changeshield'
+                ? props.data.card?.shield
+                : props.data.type.toLowerCase() === 'changeexperience'
+                  ? props.data.card?.experience
+                  : 1
+            }
             onKeyPress={(e) => {
               if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())
             }}
@@ -241,6 +214,7 @@ export const Actions: Component<ActionsProps> = (props) => {
               id="value-power"
               class="stats power"
               type="number"
+              min="0"
               value={props.data.card?.modifiedPower}
               onKeyPress={(e) => {
                 if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())
@@ -251,6 +225,7 @@ export const Actions: Component<ActionsProps> = (props) => {
             id="value-hp"
             class="stats hp"
             type="number"
+            min="0"
             value={props.data.card?.modifiedHp}
             onKeyPress={(e) => {
               if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())
