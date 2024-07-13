@@ -208,8 +208,10 @@ export const GameComponent: Component = (props) => {
               <GameCard
                 name={card.id}
                 cardData={card}
-                pathFront={card.number === '000' ? 'card_back' : card.set + '/' + card.number}
-                pathBack={card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined}
+                pathFront={card.number === '000' ? 'card_back' : card.set + 'webp/' + card.number}
+                pathBack={
+                  card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
+                }
                 openActions={openActions}
                 area="display"
                 pushNewPosition={cardPushNewPosition}
@@ -321,7 +323,7 @@ export const GameComponent: Component = (props) => {
                 <GameCard
                   name={card.id}
                   cardData={card}
-                  pathFront={card.set + '/' + card.number}
+                  pathFront={card.set + 'webp/' + card.number}
                   openActions={openActions}
                   area="resource"
                   pushNewPosition={cardPushNewPosition}
@@ -385,8 +387,10 @@ export const GameComponent: Component = (props) => {
               <GameCard
                 name={card.id}
                 cardData={card}
-                pathFront={card.number === '000' ? 'card_back' : card.set + '/' + card.number}
-                pathBack={card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined}
+                pathFront={card.number === '000' ? 'card_back' : card.set + 'webp/' + card.number}
+                pathBack={
+                  card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
+                }
                 openActions={openActions}
                 area="discard"
                 pushNewPosition={cardPushNewPosition}
@@ -403,8 +407,10 @@ export const GameComponent: Component = (props) => {
               <GameCard
                 name={card.id}
                 cardData={card}
-                pathFront={card.number === '000' ? 'card_back' : card.set + '/' + card.number}
-                pathBack={card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined}
+                pathFront={card.number === '000' ? 'card_back' : card.set + 'webp/' + card.number}
+                pathBack={
+                  card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
+                }
                 openActions={openActions}
                 area="hand"
                 pushNewPosition={cardPushNewPosition}
@@ -430,9 +436,9 @@ export const GameComponent: Component = (props) => {
                 <GameCard
                   name={card.id}
                   cardData={card}
-                  pathFront={card.number === '000' ? 'card_back' : card.set + '/' + card.number}
+                  pathFront={card.number === '000' ? 'card_back' : card.set + 'webp/' + card.number}
                   pathBack={
-                    card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                    card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                   }
                   openActions={openActions}
                   area="hand"
@@ -451,9 +457,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="resource"
@@ -482,9 +488,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="ground"
@@ -503,9 +509,11 @@ export const GameComponent: Component = (props) => {
                       <GameCard
                         name={card.id}
                         cardData={card}
-                        pathFront={card.set + '/' + card.number}
+                        pathFront={card.set + 'webp/' + card.number}
                         pathBack={
-                          card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                          card.type === 'Leader'
+                            ? card.set + 'webp/' + card.number + '-b'
+                            : undefined
                         }
                         openActions={openActions}
                         area="leader"
@@ -523,9 +531,11 @@ export const GameComponent: Component = (props) => {
                       <GameCard
                         name={card.id}
                         cardData={card}
-                        pathFront={card.set + '/' + card.number}
+                        pathFront={card.set + 'webp/' + card.number}
                         pathBack={
-                          card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                          card.type === 'Leader'
+                            ? card.set + 'webp/' + card.number + '-b'
+                            : undefined
                         }
                         openActions={openActions}
                         area="base"
@@ -543,9 +553,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="space"
@@ -568,9 +578,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="ground"
@@ -589,9 +599,11 @@ export const GameComponent: Component = (props) => {
                       <GameCard
                         name={card.id}
                         cardData={card}
-                        pathFront={card.set + '/' + card.number}
+                        pathFront={card.set + 'webp/' + card.number}
                         pathBack={
-                          card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                          card.type === 'Leader'
+                            ? card.set + 'webp/' + card.number + '-b'
+                            : undefined
                         }
                         openActions={openActions}
                         area="base"
@@ -609,9 +621,11 @@ export const GameComponent: Component = (props) => {
                       <GameCard
                         name={card.id}
                         cardData={card}
-                        pathFront={card.set + '/' + card.number}
+                        pathFront={card.set + 'webp/' + card.number}
                         pathBack={
-                          card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                          card.type === 'Leader'
+                            ? card.set + 'webp/' + card.number + '-b'
+                            : undefined
                         }
                         openActions={openActions}
                         area="leader"
@@ -629,9 +643,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="space"
@@ -650,9 +664,9 @@ export const GameComponent: Component = (props) => {
                     <GameCard
                       name={card.id}
                       cardData={card}
-                      pathFront={card.set + '/' + card.number}
+                      pathFront={card.set + 'webp/' + card.number}
                       pathBack={
-                        card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                        card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
                       openActions={openActions}
                       area="resource"
@@ -681,9 +695,9 @@ export const GameComponent: Component = (props) => {
                 <GameCard
                   name={card.id}
                   cardData={card}
-                  pathFront={card.set + '/' + card.number}
+                  pathFront={card.set + 'webp/' + card.number}
                   pathBack={
-                    card.type === 'Leader' ? card.set + '/' + card.number + '-b' : undefined
+                    card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                   }
                   openActions={openActions}
                   area="hand"

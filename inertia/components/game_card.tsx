@@ -50,18 +50,18 @@ export const GameCard: Component<GameCardProps> = (props) => {
   const urlVisible = (display = false) => {
     console.log(display, merged.pathBack, merged.playerView, merged.cardData.type, merged.owner)
     if (display && merged.pathBack === 'card_back' && merged.playerView === merged.owner) {
-      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathFront + '.png'
+      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathFront + '.webp'
     }
     if (merged.cardData.type === 'Base') {
-      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathFront + '.png'
+      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathFront + '.webp'
     }
     if (merged.cardData.type === 'Leader' && ['ground', 'space'].includes(merged.area)) {
-      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathBack + '.png'
+      return 'https://ik.imagekit.io/nrqvxs6itqd/SWU/' + merged.pathBack + '.webp'
     }
     return (
       'https://ik.imagekit.io/nrqvxs6itqd/SWU/' +
       (visibleSide() === 'back' ? merged.pathBack : merged.pathFront) +
-      '.png'
+      '.webp'
     )
   }
 
