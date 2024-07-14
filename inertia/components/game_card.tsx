@@ -17,6 +17,7 @@ interface GameCardProps {
   openActions: (data: any) => void
   area: string
   pushNewPosition: (card: Card, side: string, area: string, fromArea: string) => void
+  zIndex?: number
 }
 
 export const GameCard: Component<GameCardProps> = (props) => {
@@ -151,7 +152,14 @@ export const GameCard: Component<GameCardProps> = (props) => {
         ref={element}
         class="swu-card container"
         onClick={clickHandle}
-        style={'top:' + top() + 'px; left: ' + left() + 'px'}
+        style={
+          'top:' +
+          top() +
+          'px; left: ' +
+          left() +
+          'px;' +
+          (merged.zIndex ? 'z-index:' + merged.zIndex : '')
+        }
         classList={{ exhausted: !!merged.cardData.exhaust }}
       >
         <img class="in-game" src={urlVisible()} alt={alt} draggable="false" />
@@ -172,6 +180,31 @@ export const GameCard: Component<GameCardProps> = (props) => {
             <span class="stats shield">{merged.cardData.shield}</span>
           </Show>
           <span class="stats hp">{merged.cardData.modifiedHp}</span>
+        </Show>
+        <Show when={merged.cardData.equipment.length}>
+          <div class="card-child">
+            <For each={merged.cardData.equipment}>
+              {(card, index) => {
+                return (
+                  <GameCard
+                    name={card.id}
+                    cardData={card}
+                    pathFront={
+                      card.number === '000' ? 'card_back' : card.set + 'webp/' + card.number
+                    }
+                    pathBack={
+                      card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
+                    }
+                    openActions={merged.openActions}
+                    area="hand"
+                    pushNewPosition={merged.pushNewPosition}
+                    initPositionY={(index() + 1) * 10}
+                    zIndex={10 - index()}
+                  ></GameCard>
+                )
+              }}
+            </For>
+          </div>
         </Show>
       </div>
       <Show when={merged.cardData.number !== '0' && merged.cardData.number !== '000'}>

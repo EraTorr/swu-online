@@ -17,6 +17,7 @@ import {
   exhaustCard,
   changeExperience,
   changeShield,
+  equipCard,
 } from './game.js'
 
 import { Card } from '#types/card.type.js'
@@ -167,6 +168,9 @@ export const handleAction = async (action: string, data: any) => {
       break
     case 'invoke':
       moveCard(data.gameId, data.move)
+      break
+    case 'equip':
+      equipCard(data.gameId, data.equip)
       break
   }
 }

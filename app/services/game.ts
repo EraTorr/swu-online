@@ -332,6 +332,8 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       const from = game.hands[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
+      newCard.shield = 0
+      newCard.experience = 0
       game.hands[toSide].cards = [...from, newCard]
       break
     }
@@ -339,6 +341,8 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       const from = game.resources[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
+      newCard.shield = 0
+      newCard.experience = 0
       game.resources[toSide].cards = [...from, newCard]
       break
     }
@@ -346,6 +350,8 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       const from = game.decks[toSide].playDeck as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
+      newCard.shield = 0
+      newCard.experience = 0
       game.decks[toSide].playDeck = [...from, newCard]
       break
     }
@@ -353,6 +359,8 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       const from = game.decks[toSide].playDeck as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
+      newCard.shield = 0
+      newCard.experience = 0
       game.decks[toSide].playDeck = [newCard, ...from]
       break
     }
@@ -360,6 +368,8 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
       const from = game.discards[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
+      newCard.shield = 0
+      newCard.experience = 0
       game.discards[toSide].cards = [...from, newCard]
       break
     }
@@ -384,6 +394,34 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
   buildDataPlayer(gameId, playerUuid, true)
 }
 
+export const equipCard = (gameId: string, data: any) => {
+  const game = getGame(gameId) as GameType
+  const { playerUuid, card, cardArea, cardToEquip, cardToEquipArea } = data
+
+  const area = cardArea === 'ground' ? 'grounds' : 'spaces'
+  const moveData = {
+    card: cardToEquip,
+    side: (cardToEquip as Card).side === playerUuid ? 'player' : 'opponent',
+    area: 'card',
+    fromArea: cardToEquipArea,
+    playerUuid,
+  }
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+
+  const cardIndex = game[area][player].cards.findIndex((groundCard) => groundCard.id === card.id)
+
+  if (cardIndex > -1 && game[area][player].cards[cardIndex]) {
+    const cardToEdit = game[area][player].cards[cardIndex]
+
+    cardToEdit.equipment = [...cardToEdit.equipment, cardToEquip]
+  } else {
+    return
+  }
+
+  setGame(game)
+  moveCard(gameId, moveData)
+}
+
 export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = false) => {
   const game = getGame(gameId) as GameType
 
@@ -391,7 +429,6 @@ export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = f
     p1: game.decks.p1?.playDeck?.length ?? 0,
     p2: game.decks.p2?.playDeck?.length ?? 0,
   }
-  console.log('modifiedHp', game.bases.p1?.modifiedHp, game.bases.p2?.modifiedHp)
   const leaders = { p1: game.leaders.p1, p2: game.leaders.p2 }
   const bases = { p1: game.bases.p1, p2: game.bases.p2 }
   const grounds = { p1: game.grounds.p1?.cards, p2: game.grounds.p2?.cards }
@@ -451,7 +488,6 @@ export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = f
 export const drawCard = (gameId: string, draw: any) => {
   const game = getGame(gameId) as GameType
 
-  console.log(draw)
   const { value, playerUuid } = draw
 
   const player = playerUuid === game.p1 ? 'p1' : 'p2'
@@ -645,6 +681,7 @@ export const initCard = (data: any): Card => {
     modifiedPower: data.power ?? 0,
     modifiedHp: data.hp ?? 0,
     exhaust: false,
+    equipment: [],
     ...data,
   }
 }

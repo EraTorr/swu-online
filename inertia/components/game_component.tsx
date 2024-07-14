@@ -28,14 +28,14 @@ export const GameComponent: Component = (props) => {
   const [actionsData, setActionsData] = createSignal<ActionsData | null>(null)
   // const [actionsArea, setActionsArea] = createSignal<string>('');
   // const [actionsCard, setActionsCard] = createSignal<string>('');
-  const [cards, setCards] = createSignal<Array<Card>>([])
-  const [opponentHandCount, setOpponentHandCount] = createSignal<number>(0)
+  // const [cards, setCards] = createSignal<Array<Card>>([])
+  // const [opponentHandCount, setOpponentHandCount] = createSignal<number>(0)
   const [opponentHandCards, setOpponentHandCards] = createSignal<Array<Card>>([])
   const [opponentResourcesCards, setOpponentResourcesCards] = createSignal<Array<Card>>([])
 
-  const [opponentResourcesCount, setOpponentResourcesCount] = createSignal<number>(11)
-  const [opponentExhaustedResourcesCount, setOpponentExhaustedResourcesCount] =
-    createSignal<number>(1)
+  // const [opponentResourcesCount, setOpponentResourcesCount] = createSignal<number>(11)
+  // const [opponentExhaustedResourcesCount, setOpponentExhaustedResourcesCount] =
+  // createSignal<number>(1)
   const [handCards, setHandCards] = createSignal<Array<Card>>([])
   const [deckCount, setDeckCount] = createSignal<number>(0)
   const [opponentDeckCount, setOpponentDeckCount] = createSignal<number>(0)
@@ -224,7 +224,14 @@ export const GameComponent: Component = (props) => {
   }
 
   const openActions = (e: ActionsData) => {
-    setActionsData(e)
+    if (actionsData()?.type === 'equip') {
+      sendEvent('equip-selectcard', {
+        cardToEquip: e.card,
+        cardToEquipArea: e.area,
+      })
+    } else {
+      setActionsData(e)
+    }
   }
 
   const sendEvent = (e: string, value?: any) => {
@@ -286,6 +293,22 @@ export const GameComponent: Component = (props) => {
 
       sendAction('changestats', { action: data })
       setActionsData(null)
+    } else if (e === 'equip-selectcard') {
+      const data = {
+        playerUuid: myuuid,
+        card: actionData.card,
+        cardArea: actionData.area,
+        cardToEquip: value.cardToEquip,
+        cardToEquipArea: value.cardToEquipArea,
+      }
+      sendAction('equip', { equip: data })
+
+      setActionsData(null)
+    } else if (e === 'equip') {
+      setActionsData({
+        ...actionData,
+        type: e,
+      })
     } else {
       const data: any = {
         playerUuid: myuuid,

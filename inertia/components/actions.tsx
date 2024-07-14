@@ -53,6 +53,32 @@ export const Actions: Component<ActionsProps> = (props) => {
     console.log('actionList', props.data.type, props.data.area, from)
     let areaAction = props.data.area
 
+    if (props.data.type.toLowerCase() === 'equip') {
+      actionsToSet.push(['close', 'Close'])
+
+      setActions(actionsToSet)
+      return
+    } else if (props.data.type.toLowerCase() === 'moveto') {
+      if (props.data.card?.arenas?.includes('Space')) {
+        actionsToSet.push(['to_space', 'Space'])
+      } else if (props.data.card?.arenas?.includes('Ground')) {
+        actionsToSet.push(['to_ground', 'Ground'])
+      } else {
+        actionsToSet.push(['to_space', 'Space'], ['to_ground', 'Ground'])
+      }
+      actionsToSet.push(
+        ['to_discard', 'Discard'],
+        ['to_hand', 'Hand'],
+        ['to_resource', 'Resource'],
+        ['to_decktop', 'Deck top'],
+        ['to_deckbottom', 'Deck bottom'],
+        ['close', 'Close']
+      )
+
+      setActions(actionsToSet)
+      return
+    }
+
     switch (props.data.type.toLowerCase()) {
       case 'leader':
         actionsToSet.push(
@@ -70,18 +96,8 @@ export const Actions: Component<ActionsProps> = (props) => {
           ['draw', 'Draw X'],
           ['look', 'Look X'],
           ['discard', 'Discard X'],
-          ['shuffle', 'Shuffle']
-        )
-        break
-      case 'moveto':
-        actionsToSet.push(
-          ['to_space', 'Space'],
-          ['to_ground', 'Ground'],
-          ['to_discard', 'Discard'],
-          ['to_hand', 'Hand'],
-          ['to_resource', 'Resource'],
-          ['to_decktop', 'Deck top'],
-          ['to_deckbottom', 'Deck bottom']
+          ['shuffle', 'Shuffle'],
+          ['shuffleBottom', 'Shuffle X bottom']
         )
         break
       default:
@@ -102,12 +118,13 @@ export const Actions: Component<ActionsProps> = (props) => {
       case 'ground':
       case 'space':
         actionsToSet.push(
-          ['action', 'Action'],
-          ['attack', 'Attack'],
+          // ['action', 'Action'],
+          // ['attack', 'Attack'],
           ['changeStats', 'Stats'],
           ['exhaust', 'Exhaust'],
           ['changeShield', 'Shield'],
-          ['changeExperience', 'Experience']
+          ['changeExperience', 'Experience'],
+          ['equip', 'Equip / Capture']
         )
         break
       case 'resource':
@@ -168,6 +185,7 @@ export const Actions: Component<ActionsProps> = (props) => {
               'changestats',
               'changeshield',
               'changeexperience',
+              'equip',
             ].includes(props.data.type.toLowerCase())
           }
         >
@@ -237,6 +255,12 @@ export const Actions: Component<ActionsProps> = (props) => {
           <button type="button" onClick={() => close()}>
             Close
           </button>
+        </Show>
+        <Show when={props.data.type.toLowerCase() === 'equip'}>
+          <div>Select the card to equip / capture</div>
+          <For each={actions()}>
+            {(action) => <li onClick={(e) => onClickAction(e, action[0])}>{action[1]}</li>}
+          </For>
         </Show>
       </ul>
     </div>
