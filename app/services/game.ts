@@ -276,7 +276,6 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
   const fromSide = card.side === game.p1 ? 'p1' : 'p2'
   const player = playerUuid === game.p1 ? 'p1' : 'p2'
   const toSide = side === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
-  console.log(fromArea, area, side, fromSide)
   if (fromArea === area && fromSide === toSide) return
 
   switch (fromArea) {
@@ -399,19 +398,26 @@ export const equipCard = (gameId: string, data: any) => {
   const { playerUuid, card, cardArea, cardToEquip, cardToEquipArea } = data
 
   const area = cardArea === 'ground' ? 'grounds' : 'spaces'
+  const cardToEquipSide = (cardToEquip as Card).side === playerUuid ? 'player' : 'opponent'
+  const cardSide = (card as Card).side === playerUuid ? 'player' : 'opponent'
+
   const moveData = {
     card: cardToEquip,
-    side: (cardToEquip as Card).side === playerUuid ? 'player' : 'opponent',
+    side: cardToEquipSide,
     area: 'card',
     fromArea: cardToEquipArea,
     playerUuid,
   }
   const player = playerUuid === game.p1 ? 'p1' : 'p2'
+  const cardToEditSide =
+    cardSide === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
 
-  const cardIndex = game[area][player].cards.findIndex((groundCard) => groundCard.id === card.id)
+  const cardIndex = game[area][cardToEditSide].cards.findIndex(
+    (groundCard) => groundCard.id === card.id
+  )
 
-  if (cardIndex > -1 && game[area][player].cards[cardIndex]) {
-    const cardToEdit = game[area][player].cards[cardIndex]
+  if (cardIndex > -1 && game[area][cardToEditSide].cards[cardIndex]) {
+    const cardToEdit = game[area][cardToEditSide].cards[cardIndex]
 
     cardToEdit.equipment = [...cardToEdit.equipment, cardToEquip]
   } else {
@@ -420,6 +426,38 @@ export const equipCard = (gameId: string, data: any) => {
 
   setGame(game)
   moveCard(gameId, moveData)
+}
+
+export const unequipCard = (gameId: string, data: any) => {
+  const game = getGame(gameId) as GameType
+  const { card: card, side: side, playerUuid: playerUuid } = data
+
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+  const toSide = side === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
+
+  let areaCard: 'grounds' | 'spaces' = 'grounds'
+
+  let cardIndex = game.grounds[toSide].cards.findIndex((groundCard) =>
+    groundCard.equipment.filter((equippedCard) => equippedCard.id === card.id)
+  )
+
+  if (cardIndex === -1) {
+    cardIndex = game.spaces[toSide].cards.findIndex((groundCard) =>
+      groundCard.equipment.filter((equippedCard) => equippedCard.id === card.id)
+    )
+    areaCard = 'spaces'
+  }
+
+  if (cardIndex > -1 && game[areaCard][toSide].cards[cardIndex]) {
+    const cardToEdit = game[areaCard][toSide].cards[cardIndex] as Card
+    cardToEdit.equipment = cardToEdit.equipment.filter(
+      (equippedCard) => equippedCard.id !== card.id
+    )
+  } else {
+    return
+  }
+
+  setGame(game)
 }
 
 export const buildDataPlayer = (gameId: string, playerUuid: string, opponent = false) => {

@@ -196,7 +196,7 @@ export const GameCard: Component<GameCardProps> = (props) => {
                       card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                     }
                     openActions={merged.openActions}
-                    area="hand"
+                    area="equip"
                     pushNewPosition={merged.pushNewPosition}
                     initPositionY={(index() + 1) * 10}
                     zIndex={10 - index()}

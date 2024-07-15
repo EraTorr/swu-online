@@ -96,6 +96,8 @@ export const GameComponent: Component = (props) => {
       setOpponentSpaceCards(data.spaces.p1)
       setOpponentDiscardPileCards(data.discards.p1)
     }
+
+    sessionStorage.setItem('data', JSON.stringify(data))
   }
 
   onMount(async () => {
@@ -236,7 +238,7 @@ export const GameComponent: Component = (props) => {
 
   const sendEvent = (e: string, value?: any) => {
     const actionData = actionsData() as ActionsData
-    const card = actionsData()?.card as Card
+    const card = actionData.card as Card
 
     if (e.includes('moveto')) {
       setActionsData({
@@ -246,7 +248,7 @@ export const GameComponent: Component = (props) => {
     } else if (e.startsWith('to')) {
       const split = e.split('_')
 
-      if (actionData.area === 'display') {
+      if (centralDisplayChildren()) {
         const cardsList = centralDisplayCards()
         const index = cardsList.findIndex((c: Card) => c.id === card.id)
         cardsList.splice(index, 1)

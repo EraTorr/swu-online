@@ -18,6 +18,7 @@ import {
   changeExperience,
   changeShield,
   equipCard,
+  unequipCard,
 } from './game.js'
 
 import { Card } from '#types/card.type.js'
@@ -134,6 +135,9 @@ export const handleAction = async (action: string, data: any) => {
       reconnect(data.gameId, data.uuid)
       break
     case 'moveCard':
+      if (data.move.fromArea === 'equip') {
+        unequipCard(data.gameId, data.move)
+      }
       moveCard(data.gameId, data.move)
       break
     case 'draw':
