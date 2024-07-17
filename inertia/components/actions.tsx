@@ -1,6 +1,5 @@
 import type { Component } from 'solid-js'
-import { mergeProps, createSignal, onMount, For, createEffect, Show } from 'solid-js'
-import { GameCard } from './game_card.jsx'
+import { createSignal, For, createEffect, Show } from 'solid-js'
 import '../css/actions.scss'
 import type { Card } from '../helpers/card'
 
@@ -22,35 +21,21 @@ export const Actions: Component<ActionsProps> = (props) => {
   const [selected, setSelected] = createSignal<string>('')
 
   createEffect((prevData) => {
-    console.log('cEA', JSON.stringify(prevData) !== JSON.stringify(props.data))
+    // console.log('cEA', JSON.stringify(prevData) !== JSON.stringify(props.data))
     if (JSON.stringify(prevData) !== JSON.stringify(props.data)) {
-      console.log('type changed to', props.data.area)
+      // console.log('type changed to', props.data.area)
       actionList('prevCardtype')
     }
     return props.data
   })
 
-  // const clickMouseEvent = (e: MouseEvent) => {
-  //   console.log(e, actions().length, (e.target as HTMLElement)?.closest('.action-list'))
-  //   if (!actions().length && (e.target as HTMLElement)?.closest('.action-list')) {
-  //     props.sendEvent('close')
-  //     document.removeEventListener('click', clickMouseEvent)
-  //   }
-  // }
-
   const close = () => {
     props.sendEvent('close')
-    // document.removeEventListener('click', clickMouseEvent)
   }
-
-  onMount(() => {
-    // TODO reload action list when parent remove list of action
-    // document.addEventListener('click', clickMouseEvent)
-  })
 
   const actionList = (from: any): any => {
     const actionsToSet = []
-    console.log('actionList', props.data.type, props.data.area, from)
+    // console.log('actionList', props.data.type, props.data.area, from)
     let areaAction = props.data.area
 
     if (props.data.type.toLowerCase() === 'equip') {
@@ -81,12 +66,7 @@ export const Actions: Component<ActionsProps> = (props) => {
 
     switch (props.data.type.toLowerCase()) {
       case 'leader':
-        actionsToSet.push(
-          ['flip', 'Flip'],
-          ['invoke', 'Invoke'],
-          ['exhaust', 'Exhaust'],
-          ['discard', 'Discard']
-        )
+        actionsToSet.push(['invoke', 'Invoke'], ['exhaust', 'Exhaust'], ['discard', 'Discard'])
         break
       case 'base':
         actionsToSet.push(['changeStats', 'Change Life'], ['exhaust', 'Exhaust'])
@@ -95,7 +75,7 @@ export const Actions: Component<ActionsProps> = (props) => {
         actionsToSet.push(
           ['draw', 'Draw X'],
           ['look', 'Look X'],
-          ['discard', 'Discard X'],
+          ['discardX', 'Discard X'],
           ['shuffle', 'Shuffle'],
           ['shuffleBottom', 'Shuffle X bottom']
         )
@@ -113,13 +93,11 @@ export const Actions: Component<ActionsProps> = (props) => {
         actionsToSet.push(['look', 'Look'])
         break
       case 'hand':
-        actionsToSet.push(['play', 'Play'], ['reveal', 'Reveal'])
+        // actionsToSet.push(['play', 'Play'], ['reveal', 'Reveal'])
         break
       case 'ground':
       case 'space':
         actionsToSet.push(
-          // ['action', 'Action'],
-          // ['attack', 'Attack'],
           ['changeStats', 'Stats'],
           ['exhaust', 'Exhaust'],
           ['changeShield', 'Shield'],
@@ -128,7 +106,7 @@ export const Actions: Component<ActionsProps> = (props) => {
         )
         break
       case 'resource':
-        actionsToSet.push(['reveal', 'Reveal'], ['exhaust', 'Exhaust'])
+        actionsToSet.push(['exhaust', 'Exhaust'])
         break
     }
 
@@ -142,7 +120,7 @@ export const Actions: Component<ActionsProps> = (props) => {
     const select = selected()
     if (
       selectedAction.startsWith('moveto') ||
-      ['look', 'discard', 'draw', 'heal', 'damage'].includes(selectedAction)
+      ['look', 'discardX', 'draw', 'heal', 'damage'].includes(selectedAction)
     ) {
       setSelected(selectedAction)
     }
@@ -155,7 +133,7 @@ export const Actions: Component<ActionsProps> = (props) => {
   }
 
   const onClickButton = (selectedAction: string) => {
-    console.log('click', selectedAction, props.data.area)
+    // console.log('click', selectedAction, props.data.area)
     if (selectedAction === 'changestats') {
       const hp = Number.parseInt((document.getElementById('value-hp') as HTMLInputElement).value)
       const power =
@@ -178,7 +156,7 @@ export const Actions: Component<ActionsProps> = (props) => {
           when={
             ![
               'look',
-              'discard',
+              'discardx',
               'draw',
               'heal',
               'damage',
@@ -186,6 +164,7 @@ export const Actions: Component<ActionsProps> = (props) => {
               'changeshield',
               'changeexperience',
               'equip',
+              'shufflebottom',
             ].includes(props.data.type.toLowerCase())
           }
         >
@@ -196,12 +175,13 @@ export const Actions: Component<ActionsProps> = (props) => {
         <Show
           when={[
             'look',
-            'discard',
+            'discardx',
             'draw',
             'heal',
             'damage',
             'changeshield',
             'changeexperience',
+            'shufflebottom',
           ].includes(props.data.type.toLowerCase())}
         >
           <input
@@ -213,7 +193,7 @@ export const Actions: Component<ActionsProps> = (props) => {
                 ? props.data.card?.shield
                 : props.data.type.toLowerCase() === 'changeexperience'
                   ? props.data.card?.experience
-                  : 1
+                  : 4
             }
             onKeyPress={(e) => {
               if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())

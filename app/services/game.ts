@@ -689,6 +689,17 @@ export const shuffleCard = (gameId: string, shuffle: any) => {
   setGame(game)
 }
 
+export const shuffleBottomCard = (gameId: string, shuffle: any) => {
+  const game = getGame(gameId) as GameType
+  const { playerUuid, value } = shuffle
+
+  const player = playerUuid === game.p1 ? 'p1' : 'p2'
+
+  game.decks[player].playDeck = shuffleDeckPart(game.decks[player].playDeck as Array<Card>, value)
+
+  setGame(game)
+}
+
 export const hiddenCard = (
   cardUuid: string,
   ownerUuid: string,
@@ -739,6 +750,16 @@ export const shuffleDeck = (deck: Array<Card>) => {
     ;[deckCopy[i], deckCopy[j]] = [deckCopy[j], deckCopy[i]]
   }
   return deckCopy
+}
+
+export const shuffleDeckPart = (deck: Array<Card>, number: number) => {
+  const deckCopy = deck.slice(0)
+  const deckCopyToShuffle = deckCopy.splice(deckCopy.length - number)
+  for (let i = deckCopyToShuffle.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[deckCopyToShuffle[i], deckCopyToShuffle[j]] = [deckCopyToShuffle[j], deckCopyToShuffle[i]]
+  }
+  return [...deckCopy, ...deckCopyToShuffle]
 }
 
 export const changeStats = (gameId: string, action: any) => {

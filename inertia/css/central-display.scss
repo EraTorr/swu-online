@@ -12,5 +12,8 @@
     .cd_child {
         display: flex;
         gap: 5px;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 800px;
     }
 }

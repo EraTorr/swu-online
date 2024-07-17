@@ -1,4 +1,3 @@
-import { usePage } from 'inertia-adapter-solid'
 import { Show, createSignal, onMount } from 'solid-js'
 import axios from 'axios'
 
@@ -7,7 +6,7 @@ export default function PreGame() {
 
   onMount(() => {
     setShowMatchMakingButton(!!localStorage.getItem('deck'))
-    console.log(usePage().props.errors ?? 'nop')
+    // console.log(usePage().props.errors ?? 'nop')
   })
 
   const saveDeckInLocalStorage = async () => {
@@ -25,7 +24,7 @@ export default function PreGame() {
         setShowMatchMakingButton(true)
       }
     } catch (e: any) {
-      console.log(e)
+      // console.log(e)
     }
   }
 

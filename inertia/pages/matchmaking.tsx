@@ -24,7 +24,7 @@ export default function Matchmaking() {
 
       localStorage.setItem('myuuid', data.uuid)
 
-      console.log(data)
+      // console.log(data)
       if (data.game) {
         sessionStorage.setItem('game', JSON.stringify(data.game))
         window.location.replace('/game')
@@ -36,7 +36,7 @@ export default function Matchmaking() {
     await subscription.create()
 
     subscription.onMessage(async (data: any) => {
-      console.log('found-match-' + myuuid, data)
+      // console.log('found-match-' + myuuid, data)
       sessionStorage.setItem('game', data)
       await subscription.delete()
       window.location.replace('/game')

@@ -109,6 +109,11 @@
     max-height: 500px;
     max-width: 500px;
 
+    &.in-display-leader {
+      top: inherit;
+      bottom: 10px;
+    }
+
     &:hover {
       display: block;
     }
@@ -118,7 +123,16 @@
   display: block;
 }
 
+.swu-card.container:hover + .in-display + .in-display-leader {
+  display: block;
+}
+
 .top .in-display {
   top: inherit;
   bottom: 10px;
+
+  &.in-display-leader {
+    top: 10px;
+    bottom: inherit;
+  }
 }

@@ -19,6 +19,7 @@ import {
   changeShield,
   equipCard,
   unequipCard,
+  shuffleBottomCard,
 } from './game.js'
 
 import { Card } from '#types/card.type.js'
@@ -157,6 +158,9 @@ export const handleAction = async (action: string, data: any) => {
       break
     case 'shuffle':
       shuffleCard(data.gameId, data.action)
+      break
+    case 'shufflebottom':
+      shuffleBottomCard(data.gameId, data.action)
       break
     case 'changestats':
       changeStats(data.gameId, data.action)
