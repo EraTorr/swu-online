@@ -35,18 +35,4 @@ a {
   color: #5a45ff;
 }
 
-/* PREGAME */
-.home {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 500px;
-}
 
-.home textarea {
-  height: 300px;
-}
-
-.home .title, a {
-  color: aliceblue;
-}

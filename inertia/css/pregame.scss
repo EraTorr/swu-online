@@ -1,0 +1,48 @@
+body {
+  overflow: inherit;
+}
+
+main {
+  display: flex;
+  gap: 10px;
+  height: inherit;
+
+  > div {
+    width: 50%;
+  }
+
+  .home {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    textarea {
+      height: 300px;
+    }
+
+    .title, a {
+      color: aliceblue;
+    }
+  }
+
+  .card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    > div {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .swu-card {
+      &.container span {
+        margin-top: -5px;
+      }
+      &.in-display {
+        left: 10px;
+      }
+    }
+  }
+}
