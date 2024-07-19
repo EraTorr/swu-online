@@ -8,11 +8,11 @@
 */
 
 import router from '@adonisjs/core/services/router'
-router.on('/').renderInertia('home', { version: 6 })
 
 const UsersController = () => import('#controllers/games_controller')
 router.get('game', [UsersController, 'board'])
 router.get('pregame', [UsersController, 'pregame'])
+router.get('/', [UsersController, 'pregame'])
 router.get('matchmaking', [UsersController, 'matchmaking'])
 
 const DeckValidateController = () => import('#controllers/api/deck_validate_controller')

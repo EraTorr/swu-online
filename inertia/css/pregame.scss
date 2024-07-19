@@ -6,7 +6,8 @@ main {
   display: flex;
   gap: 10px;
   height: inherit;
-
+  color: rgb(255, 255, 255);
+  
   > div {
     width: 50%;
   }
@@ -18,10 +19,6 @@ main {
 
     textarea {
       height: 300px;
-    }
-
-    .title, a {
-      color: aliceblue;
     }
   }
 
@@ -39,6 +36,7 @@ main {
     .swu-card {
       &.container span {
         margin-top: -5px;
+        font-weight: bold;
       }
       &.in-display {
         left: 10px;

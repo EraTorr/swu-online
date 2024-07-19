@@ -88,7 +88,7 @@ export default function PreGame() {
         </button>
 
         <Show when={showMatchMakingButton()}>
-          <label for="matchmaking-id">Code matchmaking with friend</label>
+          <label for="matchmaking-id">Code matchmaking with friend. Enter same text as your friend to join him (private game). <br/>Let empty to be paired with the next player</label>
           <input
             name="matchmaking-id"
             id="matchmaking-id"
