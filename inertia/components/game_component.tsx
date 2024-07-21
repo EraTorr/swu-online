@@ -446,7 +446,11 @@ export const GameComponent: Component = (props) => {
         </div>
         <div class="board">
           <div class="area-1">
-            <div class="resource flex" data-action="top-resource">
+            <div
+              class="resource flex"
+              classList={{ small: opponentResourcesCards().length > 10 }}
+              data-action="top-resource"
+            >
               <For each={opponentResourcesCards()}>
                 {(card, index) => {
                   return (
@@ -662,7 +666,11 @@ export const GameComponent: Component = (props) => {
             </div>
           </div>
           <div class="area-1">
-            <div class="resource flex" data-action="bottom-resource">
+            <div
+              class="resource flex"
+              classList={{ small: resourcesCards().length > 10 }}
+              data-action="bottom-resource"
+            >
               <For each={resourcesCards()}>
                 {(card, index) => {
                   return (

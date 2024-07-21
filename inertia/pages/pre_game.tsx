@@ -76,10 +76,13 @@ export default function PreGame() {
   }
 
   return (
-    <main>
+    <main class="pregame">
       <div class="home">
         <div class="title">
-          Hello, to play please copy a deck from <a href="https://swudb.com">swudb.com</a> in json
+          Hello, to play please copy a deck from{' '}
+          <a href="https://swudb.com" target="_swudb">
+            swudb.com
+          </a>{' '}
           format
         </div>
         <textarea name="deck" id="deck"></textarea>
@@ -88,7 +91,11 @@ export default function PreGame() {
         </button>
 
         <Show when={showMatchMakingButton()}>
-          <label for="matchmaking-id">Code matchmaking with friend. Enter same text as your friend to join him (private game). <br/>Let empty to be paired with the next player</label>
+          <label for="matchmaking-id">
+            Code matchmaking with friend. Enter same text as your friend to join him (private game).{' '}
+            <br />
+            Let empty to be paired with the next player
+          </label>
           <input
             name="matchmaking-id"
             id="matchmaking-id"

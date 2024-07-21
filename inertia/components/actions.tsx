@@ -133,7 +133,6 @@ export const Actions: Component<ActionsProps> = (props) => {
   }
 
   const onClickButton = (selectedAction: string) => {
-    // console.log('click', selectedAction, props.data.area)
     if (selectedAction === 'changestats') {
       const hp = Number.parseInt((document.getElementById('value-hp') as HTMLInputElement).value)
       const power =
@@ -193,7 +192,7 @@ export const Actions: Component<ActionsProps> = (props) => {
                 ? props.data.card?.shield
                 : props.data.type.toLowerCase() === 'changeexperience'
                   ? props.data.card?.experience
-                  : 4
+                  : 1
             }
             onKeyPress={(e) => {
               if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())

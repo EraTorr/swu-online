@@ -8,4 +8,11 @@ main {
     color: white;
     font-size: 20px;
     line-height: 1.6;
+
+    dialog {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 5000;
+    }
 }
