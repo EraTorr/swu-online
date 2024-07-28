@@ -1,18 +1,17 @@
 .action-list {
     margin: 0;
     display: none;
-    background-color: cornflowerblue;
+    background-color: hsl(221 80% 80% / 1);
     list-style: none;
-    padding: 0;
+    padding: 1rem;
     position: absolute;
     bottom: 80px;
     z-index: 30;
     left: 50%;
     transform: translateX(-50%);
-    width: 50vw;
+    max-width: 50vw;
     border-radius: 15px;
     box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
-    min-height: 105px;
 
     &.visible {
       display: flex;
@@ -21,7 +20,6 @@
     ul {
       display: flex;
       flex-wrap: wrap;
-      width: 50vw;
       list-style-type: none;
       margin: 5px;
       padding: 0;
@@ -35,7 +33,7 @@
         border-radius: 5px;
         cursor: pointer;
         padding: 0 5px;
-        background-color: hsla(0, 0%, 100%, 0.2);
+        background-color: hsl(0, 0%, 100%);
         box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
         transition: 0.1s all;
 
@@ -43,6 +41,10 @@
           background-color: hsla(0, 0%, 100%, 0.5);
           box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px 5px;
           transform: translateY(-2px);
+        }
+
+        &:last-child {
+          background-color: hsl(0 95% 75% / 1);
         }
       }
 

@@ -124,11 +124,6 @@ export const handleAction = async (action: string, data: any) => {
       setGame(updatedGame)
 
       if (updatedGame.decks.p1.fullDeck.length && updatedGame.decks.p2.fullDeck.length) {
-        console.log(
-          'test',
-          updatedGame.decks.p1.fullDeck.length,
-          updatedGame.decks.p2.fullDeck.length
-        )
         startPhase(updatedGame.gameId)
       }
       break

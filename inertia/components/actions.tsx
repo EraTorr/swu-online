@@ -21,9 +21,7 @@ export const Actions: Component<ActionsProps> = (props) => {
   const [selected, setSelected] = createSignal<string>('')
 
   createEffect((prevData) => {
-    // console.log('cEA', JSON.stringify(prevData) !== JSON.stringify(props.data))
     if (JSON.stringify(prevData) !== JSON.stringify(props.data)) {
-      // console.log('type changed to', props.data.area)
       actionList('prevCardtype')
     }
     return props.data
@@ -35,7 +33,6 @@ export const Actions: Component<ActionsProps> = (props) => {
 
   const actionList = (from: any): any => {
     const actionsToSet = []
-    // console.log('actionList', props.data.type, props.data.area, from)
     let areaAction = props.data.area
 
     if (props.data.type.toLowerCase() === 'equip') {
@@ -65,9 +62,6 @@ export const Actions: Component<ActionsProps> = (props) => {
     }
 
     switch (props.data.type.toLowerCase()) {
-      case 'leader':
-        actionsToSet.push(['invoke', 'Invoke'], ['exhaust', 'Exhaust'], ['discard', 'Discard'])
-        break
       case 'base':
         actionsToSet.push(['changeStats', 'Change Life'], ['exhaust', 'Exhaust'])
         break
@@ -81,19 +75,24 @@ export const Actions: Component<ActionsProps> = (props) => {
         )
         break
       default:
-        actionsToSet.push(
-          ['moveto_player', 'Move to (You)'],
-          ['moveto_opponent', 'Move to (Opponent)']
-        )
+        if (areaAction !== 'leader') {
+          actionsToSet.push(
+            ['moveto_player', 'Move to (You)'],
+            ['moveto_opponent', 'Move to (Opponent)']
+          )
+        }
         break
     }
 
     switch (areaAction) {
       case 'discard':
-        actionsToSet.push(['look', 'Look'])
+        // actionsToSet.push(['look', 'Look'])
         break
       case 'hand':
         // actionsToSet.push(['play', 'Play'], ['reveal', 'Reveal'])
+        break
+      case 'leader':
+        actionsToSet.push(['invoke', 'Invoke'], ['exhaust', 'Exhaust'])
         break
       case 'ground':
       case 'space':
@@ -228,12 +227,16 @@ export const Actions: Component<ActionsProps> = (props) => {
               if (e.key === 'Enter') onClickButton(props.data.type.toLowerCase())
             }}
           />
-          <button type="button" onClick={() => onClickButton(props.data.type.toLowerCase())}>
-            Send
-          </button>
-          <button type="button" onClick={() => close()}>
-            Close
-          </button>
+          <li>
+            <button type="button" onClick={() => onClickButton(props.data.type.toLowerCase())}>
+              Send
+            </button>
+          </li>
+          <li>
+            <button type="button" onClick={() => close()}>
+              Close
+            </button>
+          </li>
         </Show>
         <Show when={props.data.type.toLowerCase() === 'equip'}>
           <div>Select the card to equip / capture</div>

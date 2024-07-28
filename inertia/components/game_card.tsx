@@ -13,10 +13,10 @@ interface GameCardProps {
   initPositionX?: number
   initPositionY?: number
   showActionList?: boolean
-  openActions: (data: any) => void
-  sendAction: (action: string, data: any) => void
+  openActions?: (data: any) => void
+  sendAction?: (action: string, data: any) => void
   area: string
-  pushNewPosition: (card: Card, side: string, area: string, fromArea: string) => void
+  pushNewPosition?: (card: Card, side: string, area: string, fromArea: string) => void
   zIndex?: number
 }
 
@@ -65,6 +65,10 @@ export const GameCard: Component<GameCardProps> = (props) => {
 
   const follow = (event: any) => {
     stopEvent(event)
+
+    if (!props.pushNewPosition) {
+      return
+    }
 
     if (!following()) {
       setFollowing(true)
@@ -122,30 +126,41 @@ export const GameCard: Component<GameCardProps> = (props) => {
   const toggleActionList = () => {
     setShowActionListAlpine(!showActionListAlpine())
   }
+
   const clickHandle = (event: any) => {
     stopEvent(event)
 
-    if ((globalThis as any).keyPressed === 'e') {
-      const data: any = {
-        playerUuid: merged.cardData.owner,
-        card: merged.cardData,
-      }
-
-      merged.sendAction('exhaust', { action: data })
+    if (!merged.sendAction) {
       return
-    } else if ((globalThis as any).keyPressed === 'd') {
-      const move: MoveCardType = {
-        playerUuid: merged.cardData.owner,
-        card: merged.cardData,
-        fromArea: merged.area,
-        area: 'discard',
-        side: 'player',
-      }
+    }
 
-      merged.sendAction('moveCard', { move })
-      return
-    } else if (event.shiftKey || following()) {
-      follow(event)
+    if (merged.area !== 'equip') {
+      if ((globalThis as any).keyPressed === 'e') {
+        const data: any = {
+          playerUuid: merged.cardData.owner,
+          card: merged.cardData,
+        }
+
+        merged.sendAction('exhaust', { action: data })
+        return
+      } else if ((globalThis as any).keyPressed === 'd') {
+        const move: MoveCardType = {
+          playerUuid: merged.cardData.owner,
+          card: merged.cardData,
+          fromArea: merged.area,
+          area: 'discard',
+          side: 'player',
+        }
+
+        merged.sendAction('moveCard', { move })
+        return
+      } else if (event.shiftKey || following()) {
+        follow(event)
+        return
+      }
+    }
+
+    if (!merged.openActions) {
       return
     }
 

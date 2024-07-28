@@ -1,0 +1,78 @@
+body {
+    overflow:  hidden;
+}
+main {
+    margin: auto;
+    width: 1000px;
+    height: 840px;
+    color: white;
+    font-size: 20px;
+    line-height: 1.6;
+
+    .info-dialog {
+        padding: 1rem;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 5000;
+        border: none;
+        border-radius: 1rem;
+        min-width: 500px;
+
+        &::backdrop {
+            background-color: rgba(0, 0, 0, 0.25);
+        }
+
+        &__title {
+            margin-bottom: 1rem;
+        }
+
+        &__row {
+            display: grid;
+            grid-template-columns: 1fr 3fr;
+            gap: 5px;
+
+            :last-child {
+                font-weight: bold;
+            }
+        }
+
+        form {
+            margin-top: 1rem;
+            display: flex;
+
+            button {
+                flex: 1;
+                font-size: 2rem;
+                font-weight: bold;
+                background-color: white;
+                cursor: pointer;
+                border-radius: 1rem;
+
+                &:hover {
+                    background-color: #e6e6e6;
+                }
+            }
+        }
+    }
+
+    button.info-dialog__open {
+        font-weight: bold;
+        background-color: #e6e6e6;
+        cursor: pointer;
+        position: absolute;
+        padding: 0.5rem;
+        margin: 0.5rem;
+        border: solid 1px;
+        border-radius: 5rem;
+        width: 4rem;
+        height: 4rem;
+        line-height: 1.5rem;
+        font-size: 3rem;
+        opacity: 0.7;
+
+        &:hover {
+            background-color: white;
+        }
+    }
+}

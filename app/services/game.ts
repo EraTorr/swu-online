@@ -328,47 +328,53 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
 
   switch (area) {
     case 'hand': {
-      const from = game.hands[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
       newCard.shield = 0
       newCard.experience = 0
+      unequipOnLeavePlay(newCard, gameId, playerUuid)
+      const from = game.hands[toSide].cards as Array<Card>
+      newCard.equipment = []
       game.hands[toSide].cards = [...from, newCard]
       break
     }
     case 'resource': {
-      const from = game.resources[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
       newCard.shield = 0
       newCard.experience = 0
+      unequipOnLeavePlay(newCard, gameId, playerUuid)
+      const from = game.resources[toSide].cards as Array<Card>
       game.resources[toSide].cards = [...from, newCard]
       break
     }
     case 'deckbottom': {
-      const from = game.decks[toSide].playDeck as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
       newCard.shield = 0
       newCard.experience = 0
+      unequipOnLeavePlay(newCard, gameId, playerUuid)
+      const from = game.decks[toSide].playDeck as Array<Card>
       game.decks[toSide].playDeck = [...from, newCard]
       break
     }
     case 'decktop': {
-      const from = game.decks[toSide].playDeck as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
       newCard.shield = 0
       newCard.experience = 0
+      unequipOnLeavePlay(newCard, gameId, playerUuid)
+      const from = game.decks[toSide].playDeck as Array<Card>
       game.decks[toSide].playDeck = [newCard, ...from]
       break
     }
     case 'discard': {
-      const from = game.discards[toSide].cards as Array<Card>
       newCard.modifiedHp = newCard.hp
       newCard.modifiedPower = newCard.power
       newCard.shield = 0
       newCard.experience = 0
+      unequipOnLeavePlay(newCard, gameId, playerUuid)
+      const from = game.discards[toSide].cards as Array<Card>
       game.discards[toSide].cards = [...from, newCard]
       break
     }
@@ -387,10 +393,42 @@ export const moveCard = (gameId: string, moveData: MoveCardType) => {
     }
   }
 
+  const newEquipementCards: Array<Card> = []
+  newCard.equipment.forEach((equippedCard) => {
+    const newEquippedCard = {
+      ...equippedCard,
+      side: game[toSide],
+    }
+    newEquipementCards.push(newEquippedCard)
+  })
+
+  newCard.equipment = newEquipementCards
+
   setGame(game)
 
   buildDataPlayer(gameId, playerUuid)
   buildDataPlayer(gameId, playerUuid, true)
+}
+
+export const unequipOnLeavePlay = (newCard: Card, gameId: string, playerUuid: string) => {
+  newCard.equipment.forEach((equippedCard) => {
+    unequipCard(gameId, { card: equippedCard, playerUuid })
+    let s = 'player'
+    let a = 'discard'
+    if (equippedCard.type === 'Unit') {
+      s = 'opponent'
+      const arena = equippedCard.arenas?.[0]
+      a = arena ? arena.toLowerCase() : 'ground'
+    }
+    moveCard(gameId, {
+      card: equippedCard,
+      side: s,
+      area: a,
+      fromArea: 'equip',
+      playerUuid,
+    })
+  })
+  newCard.equipment = []
 }
 
 export const equipCard = (gameId: string, data: any) => {
@@ -419,6 +457,9 @@ export const equipCard = (gameId: string, data: any) => {
   if (cardIndex > -1 && game[area][cardToEditSide].cards[cardIndex]) {
     const cardToEdit = game[area][cardToEditSide].cards[cardIndex]
 
+    if (cardToEdit.id === cardToEquip.id) {
+      return
+    }
     cardToEdit.equipment = [...cardToEdit.equipment, cardToEquip]
   } else {
     return
@@ -426,33 +467,38 @@ export const equipCard = (gameId: string, data: any) => {
 
   setGame(game)
   moveCard(gameId, moveData)
+  cardToEquip.side = game[area][cardToEditSide].cards[cardIndex].side
+  setGame(game)
 }
 
 export const unequipCard = (gameId: string, data: any) => {
   const game = getGame(gameId) as GameType
-  const { card: card, side: side, playerUuid: playerUuid } = data
+  const { card: card, playerUuid: playerUuid } = data
 
   const player = playerUuid === game.p1 ? 'p1' : 'p2'
-  const toSide = side === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
+  const cardSide = (card as Card).side === playerUuid ? 'player' : 'opponent'
+  const cardFromSide =
+    cardSide === 'player' ? (player === 'p1' ? 'p1' : 'p2') : player === 'p1' ? 'p2' : 'p1'
 
   let areaCard: 'grounds' | 'spaces' = 'grounds'
 
-  let cardIndex = game.grounds[toSide].cards.findIndex((groundCard) =>
-    groundCard.equipment.filter((equippedCard) => equippedCard.id === card.id)
+  let cardIndex = game.grounds[cardFromSide].cards.findIndex(
+    (groundCard) =>
+      groundCard.equipment.filter((equippedCard) => equippedCard.id === card.id).length
   )
 
   if (cardIndex === -1) {
-    cardIndex = game.spaces[toSide].cards.findIndex((groundCard) =>
+    cardIndex = game.spaces[cardFromSide].cards.findIndex((groundCard) =>
       groundCard.equipment.filter((equippedCard) => equippedCard.id === card.id)
     )
     areaCard = 'spaces'
   }
-
-  if (cardIndex > -1 && game[areaCard][toSide].cards[cardIndex]) {
-    const cardToEdit = game[areaCard][toSide].cards[cardIndex] as Card
+  if (cardIndex > -1 && game[areaCard][cardFromSide].cards[cardIndex]) {
+    const cardToEdit = game[areaCard][cardFromSide].cards[cardIndex] as Card
     cardToEdit.equipment = cardToEdit.equipment.filter(
       (equippedCard) => equippedCard.id !== card.id
     )
+    game[areaCard][cardFromSide].cards[cardIndex] = cardToEdit
   } else {
     return
   }
@@ -565,7 +611,6 @@ export const lookCard = (gameId: string, look: any) => {
   } else {
     broadcastResponse(game, null, data)
   }
-  console.log(gameId, look, player)
 }
 
 export const discardCard = (gameId: string, discard: any) => {
@@ -639,7 +684,6 @@ export const changeShield = (gameId: string, action: any) => {
     const cardToEdit = game[area][player].cards[cardIndex]
 
     cardToEdit.shield = value
-    console.log('cardToEdit', cardToEdit, action)
   }
   setGame(game)
 
@@ -764,7 +808,6 @@ export const shuffleDeckPart = (deck: Array<Card>, number: number) => {
 
 export const changeStats = (gameId: string, action: any) => {
   const game = getGame(gameId) as GameType
-  console.log('action', action)
   const { hp, power, playerUuid, card } = action
   const player: 'p1' | 'p2' = card.side === game.p1 ? 'p1' : 'p2'
 
@@ -790,7 +833,6 @@ export const changeStats = (gameId: string, action: any) => {
   }
 
   setGame(game)
-  console.log('action', game.bases)
 
   buildDataPlayer(gameId, playerUuid)
   buildDataPlayer(gameId, playerUuid, true)
@@ -800,7 +842,6 @@ export const exhaustCard = (gameId: string, action: any) => {
   const game = getGame(gameId) as GameType
 
   const { playerUuid, card } = action
-  console.log('exhaustCard', (card as Card).type)
 
   const player = card.side === game.p1 ? 'p1' : 'p2'
 

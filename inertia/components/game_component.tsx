@@ -155,7 +155,6 @@ export const GameComponent: Component = (props) => {
 
     newListener(document, 'sendMessage', (event: CustomEvent) => {
       const e = event as CustomEvent
-      // console.log('sendMessage', e.detail)
       axios.post(
         '/api/action',
         JSON.stringify({
@@ -231,7 +230,6 @@ export const GameComponent: Component = (props) => {
   }
 
   const sendEvent = (e: string, value?: any) => {
-    // console.log('sendEvent', e, value)
     const actionData = actionsData() as ActionsData
     const card = actionData.card as Card
 
@@ -376,7 +374,7 @@ export const GameComponent: Component = (props) => {
       fromArea,
       playerUuid: myuuid,
     }
-    // console.log('sendWS', 'moveCard', { move })
+
     sendAction('moveCard', { move })
   }
 
@@ -435,10 +433,7 @@ export const GameComponent: Component = (props) => {
                   pathBack={
                     card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                   }
-                  openActions={openActions}
                   area="hand"
-                  pushNewPosition={cardPushNewPosition}
-                  sendAction={sendAction}
                 ></GameCard>
               )
             }}
@@ -461,10 +456,7 @@ export const GameComponent: Component = (props) => {
                       pathBack={
                         card.type === 'Leader' ? card.set + 'webp/' + card.number + '-b' : undefined
                       }
-                      openActions={openActions}
                       area="resource"
-                      pushNewPosition={cardPushNewPosition}
-                      sendAction={sendAction}
                     ></GameCard>
                   )
                 }}
