@@ -83,7 +83,7 @@ export default function PreGame() {
           <a href="https://swudb.com" target="_swudb">
             swudb.com
           </a>{' '}
-          format
+          in JSON format
         </div>
         <textarea name="deck" id="deck"></textarea>
         <button type="button" onClick={() => saveDeckInLocalStorage()}>

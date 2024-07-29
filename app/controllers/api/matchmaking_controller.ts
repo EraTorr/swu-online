@@ -13,7 +13,6 @@ export default class MatchmakingController {
         const opponentFound = await getOpponent(uuid, matchmakingId)
 
         if (opponentFound) {
-          console.log('opponentFound', opponentFound)
           const game = MatchmakingService.getInstance().createGame(uuid, opponentFound)
           return ctx.response.status(200).send(JSON.stringify({ uuid, game }))
         }
@@ -34,7 +33,6 @@ export default class MatchmakingController {
   }
 
   async delete(ctx: HttpContext) {
-    console.log('delete uuid', ctx.request.qs().uuid)
     redis.zRem('matchmaking', ctx.request.qs().uuid)
 
     return ctx.response.status(200)

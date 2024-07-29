@@ -4,9 +4,13 @@ body {
 
 main.pregame {
   display: flex;
-  gap: 10px;
-  height: inherit;
-  color: rgb(255, 255, 255);
+  gap: 1rem;
+  margin: auto;
+  width: 100rem;
+  color: white;
+  font-size: 2rem;
+  line-height: 3.2rem;
+  padding-top: 1rem;
   
   > div {
     width: 50%;
@@ -15,31 +19,31 @@ main.pregame {
   .home {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 2rem;
 
     textarea {
-      height: 300px;
+      height: 30rem;
     }
   }
 
   .card-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 1rem;
 
     > div {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 1rem;
     }
 
     .swu-card {
       &.container span {
-        margin-top: -5px;
+        margin-top: -0.5rem;
         font-weight: bold;
       }
       &.in-display {
-        left: 10px;
+        left: 1rem;
       }
     }
   }

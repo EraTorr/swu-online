@@ -6,17 +6,10 @@ import { render } from 'solid-js/web'
 import { createInertiaApp } from 'inertia-adapter-solid'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'
 
-const appName = import.meta.env.VITE_APP_NAME || 'AdonisJS'
-
 createInertiaApp({
-  progress: { color: '#5468FF' },
-
-  title: (title) => `SWU - online (unofficial)`,
-
-  resolve: (name) => {
+  resolve(name) {
     return resolvePageComponent(`../pages/${name}.tsx`, import.meta.glob('../pages/**/*.tsx'))
   },
-
   setup({ el, App, props }) {
     render(() => <App {...props} />, el)
   },

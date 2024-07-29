@@ -24,7 +24,6 @@ export default function Matchmaking() {
 
       localStorage.setItem('myuuid', data.uuid)
 
-      // console.log(data)
       if (data.game) {
         sessionStorage.setItem('game', JSON.stringify(data.game))
         window.location.replace('/game')
@@ -36,7 +35,6 @@ export default function Matchmaking() {
     await subscription.create()
 
     subscription.onMessage(async (data: any) => {
-      // console.log('found-match-' + myuuid, data)
       sessionStorage.setItem('game', data)
       await subscription.delete()
       window.location.replace('/game')
@@ -48,7 +46,7 @@ export default function Matchmaking() {
   })
 
   return (
-    <main>
+    <main class="matchmaking">
       <div class="home">
         <div class="title" style="color: aliceblue; font-size: 24px;">
           Looking for an opponent...

@@ -13,7 +13,6 @@ export const GameCardDisplay: Component<GameCardDisplayProps> = (props) => {
 
   onMount(() => {
     setUrl('https://ik.imagekit.io/nrqvxs6itqd/SWU/' + props.pathFront + '.webp')
-    console.log(url)
   })
 
   return (
