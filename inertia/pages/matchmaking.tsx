@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { onMount } from 'solid-js'
+import { BackgroundStar } from '~/components/background_star'
 import { transmit } from '~/js/transmit_client'
 
 export default function Matchmaking() {
@@ -46,12 +47,15 @@ export default function Matchmaking() {
   })
 
   return (
-    <main class="matchmaking">
-      <div class="home">
-        <div class="title" style="color: aliceblue; font-size: 24px;">
-          Looking for an opponent...
+    <>
+      <BackgroundStar></BackgroundStar>
+      <main class="matchmaking">
+        <div class="home">
+          <div class="title" style="color: aliceblue; font-size: 24px;">
+            Looking for an opponent...
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </>
   )
 }

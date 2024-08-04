@@ -1,7 +1,7 @@
 /// <reference path="../../adonisrc.ts" />
 /// <reference path="../../config/inertia.ts" />
 
-import '../css/app.css'
+import '../css/app.scss'
 import { render } from 'solid-js/web'
 import { createInertiaApp } from 'inertia-adapter-solid'
 import { resolvePageComponent } from '@adonisjs/inertia/helpers'

@@ -2,6 +2,7 @@ import { For, JSXElement, Show, createSignal, onMount } from 'solid-js'
 import axios from 'axios'
 import { GameCardDisplay } from '~/components/game_card_display'
 import '../css/pregame.scss'
+import { BackgroundStar } from '~/components/background_star'
 
 export default function PreGame() {
   const [showMatchMakingButton, setShowMatchMakingButton] = createSignal<boolean>(false)
@@ -76,43 +77,51 @@ export default function PreGame() {
   }
 
   return (
-    <main class="pregame">
-      <div class="home">
-        <div class="title">
-          Hello, to play please copy a deck from{' '}
-          <a href="https://swudb.com" target="_swudb">
-            swudb.com
-          </a>{' '}
-          in JSON format
+    <>
+      <BackgroundStar></BackgroundStar>
+      <main class="pregame">
+        <div class="home">
+          <div>
+            <div>
+              To play please copy a deck from{' '}
+              <a href="https://swudb.com" target="_swudb">
+                swudb.com
+              </a>{' '}
+              in JSON format
+            </div>
+            <textarea name="deck" id="deck"></textarea>
+            <button type="button" onClick={() => saveDeckInLocalStorage()}>
+              Save deck locally (allow cookies)
+            </button>
+          </div>
+          <Show when={showMatchMakingButton()}>
+            <div>
+              <label for="matchmaking-id">
+                Code matchmaking with friend. Enter same text as your friend to join him (private
+                game). <br />
+                Let empty to be paired with the next player
+              </label>
+              <input
+                name="matchmaking-id"
+                id="matchmaking-id"
+                onInput={(e) => localStorage.setItem('matchmaking-id', e.target.value)}
+              />
+              <a href="matchmaking">
+                <button type="button">Search game</button>
+              </a>
+            </div>
+          </Show>
         </div>
-        <textarea name="deck" id="deck"></textarea>
-        <button type="button" onClick={() => saveDeckInLocalStorage()}>
-          Save deck locally (allow cookies)
-        </button>
-
-        <Show when={showMatchMakingButton()}>
-          <label for="matchmaking-id">
-            Code matchmaking with friend. Enter same text as your friend to join him (private game).{' '}
-            <br />
-            Let empty to be paired with the next player
-          </label>
-          <input
-            name="matchmaking-id"
-            id="matchmaking-id"
-            onInput={(e) => localStorage.setItem('matchmaking-id', e.target.value)}
-          />
-          <a href="matchmaking">Search game</a>
-        </Show>
-      </div>
-      <div class="card-list">
-        <Show when={showMatchMakingButton()}>
-          <span class="title">Deck</span>
-          <div>{cardBaseBuild(leader(), base())}</div>
-          <div>{cardDeckBuild(deck())}</div>
-          <span class="title">Side</span>
-          <div>{cardDeckBuild(side())}</div>
-        </Show>
-      </div>
-    </main>
+        <div class="card-list">
+          <Show when={showMatchMakingButton()}>
+            <span class="title">Deck</span>
+            <div>{cardBaseBuild(leader(), base())}</div>
+            <div>{cardDeckBuild(deck())}</div>
+            <span class="title">Side</span>
+            <div>{cardDeckBuild(side())}</div>
+          </Show>
+        </div>
+      </main>
+    </>
   )
 }

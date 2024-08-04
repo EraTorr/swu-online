@@ -7,7 +7,7 @@ main.pregame {
   gap: 1rem;
   margin: auto;
   width: 100rem;
-  color: white;
+  color: $light;
   font-size: 2rem;
   line-height: 3.2rem;
   padding-top: 1rem;
@@ -19,7 +19,13 @@ main.pregame {
   .home {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 5rem;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
 
     textarea {
       height: 30rem;
@@ -42,9 +48,59 @@ main.pregame {
         margin-top: -0.5rem;
         font-weight: bold;
       }
+
       &.in-display {
         left: 1rem;
       }
     }
+  }
+
+  button {
+    background-color: #5e9aad;
+    border: none;
+    color: white;
+    font-size: 1.6rem;
+    cursor: pointer;
+
+    &:hover {
+      background-color: hsl(194 33% 60% / 1);
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px 5px;
+      transform: translateY(-2px);
+    }
+  }
+
+  #deck {
+    border-radius: 2rem;
+    padding: 1rem;
+    resize: none;
+    background-color: rgb(255 255 255 / 25%);
+    color: $light;
+    outline: none;
+    box-shadow: none;
+    border: solid 2px transparent;
+
+    &:focus {
+      border-color: $nordic-blue;
+    }
+  }
+
+  #matchmaking-id {
+    padding: 1rem;
+    border-radius: 2rem;
+    background-color: rgb(255 255 255 / 25%);
+    color: $light;
+    outline: none;
+    box-shadow: none;
+    border: solid 2px transparent;
+
+    &:focus {
+      border-color: $nordic-blue;
+    }
+  }
+
+  button {
+    width: 100%;
+    padding: 1rem;
+    border-radius: 2rem;
   }
 }

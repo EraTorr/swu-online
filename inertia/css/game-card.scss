@@ -30,6 +30,10 @@
     }
   }
 
+  &:has(.shield) {
+    box-shadow: 0px 0px 3px 3px $nordic-blue;
+  }
+
   > img {
     max-width: 100px;
     max-height: 100px;
@@ -52,15 +56,15 @@
 
     &.power {
       left: 5px;
-      background-color: #e8202b;
-      box-shadow: 0px 0px 2px 3px hsl(357, 81%, 65%) inset, 0px 0px 1px 0px black;
+      background-color: $power;
+      box-shadow: 0px 0px 2px 3px hsl(357, 81%, 65%) inset, 0px 0px 1px 0px $black;
       border-radius: 5px;
     }
 
     &.hp {
       right: 5px;
-      background-color: #019ecf;
-      box-shadow: 0px 0px 2px 3px hsl(194 99% 65% / 1) inset, 0px 0px 1px 0px black;
+      background-color: $life;
+      box-shadow: 0px 0px 2px 3px hsl(194 99% 65% / 1) inset, 0px 0px 1px 0px $black;
       border-radius: 5px;
     }
 
@@ -68,7 +72,7 @@
       height: 25px;
       width: 25px;
       border: 1px solid black;
-      background-color: #f5cd14;
+      background-color: $nordic-blue;
       color: black;
       border-radius: 50% 50% 50% 50% / 12% 12% 88% 88%;
       top: 5px;
@@ -80,7 +84,7 @@
       left: 5px;
       max-width: 45px;
       
-      background-color: rgb(255, 255, 255);
+      background-color: $light;
       color: black;
       display: flex;
       justify-content: flex-start;

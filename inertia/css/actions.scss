@@ -26,14 +26,14 @@
       align-items: center;
       justify-content: center;
       gap: 5px;
-      color: black;
+      color: $black;
       font-weight: 600;
 
       li {
         border-radius: 5px;
         cursor: pointer;
         padding: 0 5px;
-        background-color: hsl(0, 0%, 100%);
+        background-color: $light;
         box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 2px 0px;
         transition: 0.1s all;
 
@@ -74,13 +74,13 @@
           font-size: 20px;
 
           &.power {
-            background-color: #e8202b;
-            color: white;
+            background-color: $power;
+            color: $light;
           }
 
           &.hp {
-            background-color: #019ecf;
-            color: white;
+            background-color: $life;
+            color: $light;
           }
         }
       }

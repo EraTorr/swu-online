@@ -31,4 +31,11 @@ export default defineConfig({
       '~/': `${getDirname(import.meta.url)}/inertia/`,
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "./variables.scss";`,
+      },
+    },
+  },
 })
